@@ -88,19 +88,26 @@ function SmallOrb() {
 
 export default function Background3D() {
   const isMobile = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
-  if (isMobile) return null;
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: -1, pointerEvents: 'none' }}>
-      <Canvas camera={{ position: [0, 0, 8] }}>
+      <Canvas camera={{ position: [0, 0, 8] }} gl={{ antialias: !isMobile, powerPreference: isMobile ? 'low-power' : 'high-performance' }}>
         <ambientLight intensity={0.3} />
-        <directionalLight position={[-3, 5, 3]} intensity={0.8} color="#ffffff" />
-        <pointLight position={[5, 3, 2]} intensity={1.5} color="#6b46c1" />
-        <pointLight position={[-5, -3, -2]} intensity={0.8} color="#0ea5e9" />
-        <Stars radius={100} depth={50} count={6000} factor={4} saturation={0} fade speed={0.8} />
-        <MainSphere />
-        <FloatingTorus />
-        <SmallOrb />
+        {!isMobile && <directionalLight position={[-3, 5, 3]} intensity={0.8} color="#ffffff" />}
+        {!isMobile && <pointLight position={[5, 3, 2]} intensity={1.5} color="#6b46c1" />}
+        {!isMobile && <pointLight position={[-5, -3, -2]} intensity={0.8} color="#0ea5e9" />}
+        <Stars
+          radius={100}
+          depth={50}
+          count={isMobile ? 2000 : 6000}
+          factor={4}
+          saturation={0}
+          fade
+          speed={isMobile ? 0.3 : 0.8}
+        />
+        {!isMobile && <MainSphere />}
+        {!isMobile && <FloatingTorus />}
+        {!isMobile && <SmallOrb />}
       </Canvas>
     </div>
   );
