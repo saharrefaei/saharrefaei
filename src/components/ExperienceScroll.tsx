@@ -83,10 +83,11 @@ function TimelineCard({ exp, index }: { exp: (typeof experiences)[0]; index: num
       className="timeline-row"
       style={{
         display: "grid",
-        gridTemplateColumns: "clamp(100px, 12vw, 160px) 28px 1fr",
-        gap: "0 1.5rem",
+        gridTemplateColumns: "clamp(80px, 12vw, 160px) 28px 1fr",
+        gap: "0 1rem",
         marginBottom: index === experiences.length - 1 ? 0 : "3rem",
         alignItems: "flex-start",
+        minWidth: 0,
       }}
     >
       {/* Date column */}

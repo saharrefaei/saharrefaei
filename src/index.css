@@ -195,6 +195,23 @@ body {
   .lets-talk {
     font-size: clamp(3rem, 18vw, 6rem) !important;
   }
+
+  /* Education card: stack vertically on mobile */
+  .education-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ExperienceScroll: fix overflow */
+  .timeline-row {
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Education badge smaller on very small screens */
+  .education-badge {
+    padding: 1rem 1.2rem !important;
+  }
 }
 
 @media (max-width: 480px) {

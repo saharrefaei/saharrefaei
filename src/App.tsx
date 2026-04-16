@@ -64,12 +64,12 @@ function EducationSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.15 }}
-        className="glass-panel"
+        className="glass-panel education-card"
         style={{
-          padding: 'clamp(2rem, 3vw, 3.5rem)',
+          padding: 'clamp(1.5rem, 3vw, 3.5rem)',
           display: 'grid',
           gridTemplateColumns: 'auto 1fr',
-          gap: '2.5rem',
+          gap: 'clamp(1.2rem, 3vw, 2.5rem)',
           alignItems: 'center',
           borderLeft: '3px solid rgba(107,70,193,0.55)',
           position: 'relative',
