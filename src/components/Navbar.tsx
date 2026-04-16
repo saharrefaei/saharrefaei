@@ -38,7 +38,7 @@ export default function Navbar() {
       {/* Logo */}
       <motion.a
         href="#"
-        style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: '2px', cursor: 'none' }}
+        style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: '2px' }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >

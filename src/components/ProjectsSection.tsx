@@ -92,15 +92,16 @@ const projects = [
 function ProjectCard({ project, index }: { project: (typeof projects)[0]; index: number }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-0.5, 0.5], [4, -4]);
-  const rotateY = useTransform(x, [-0.5, 0.5], [-4, 4]);
+  const rotateX = useTransform(y, [-0.5, 0.5], isMobile ? [0, 0] : [4, -4]);
+  const rotateY = useTransform(x, [-0.5, 0.5], isMobile ? [0, 0] : [-4, 4]);
   const sRotateX = useSpring(rotateX, { stiffness: 260, damping: 30 });
   const sRotateY = useSpring(rotateY, { stiffness: 260, damping: 30 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (isMobile || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     x.set((e.clientX - rect.left) / rect.width - 0.5);
     y.set((e.clientY - rect.top) / rect.height - 0.5);
@@ -127,7 +128,7 @@ function ProjectCard({ project, index }: { project: (typeof projects)[0]; index:
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.7, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ scale: 1.005 }}
+      whileHover={isMobile ? undefined : { scale: 1.005 }}
       className="glass-panel"
       style={{
         rotateX: sRotateX,
@@ -138,6 +139,7 @@ function ProjectCard({ project, index }: { project: (typeof projects)[0]; index:
         borderLeft: `3px solid ${project.color}55`,
         position: 'relative',
         overflow: 'hidden',
+        touchAction: 'pan-y',
       }}
     >
       {/* Ambient background */}

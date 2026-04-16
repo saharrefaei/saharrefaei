@@ -72,7 +72,7 @@ function TagList({ tags, color = '#cbd5e1', borderColor = 'rgba(255,255,255,0.1)
             border: `1px solid ${borderColor}`,
             padding: '4px 14px', borderRadius: '20px',
             fontSize: '0.85rem', color,
-            cursor: 'none', transition: 'all 0.2s',
+            transition: 'all 0.2s',
           }}
         >
           {tag}

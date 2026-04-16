@@ -127,7 +127,7 @@ export default function Hero() {
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         style={{
           position: 'absolute', top: '-15%', right: '10%',
-          width: '700px', height: '700px',
+          width: 'clamp(300px, 60vw, 700px)', height: 'clamp(300px, 60vw, 700px)',
           background: 'radial-gradient(circle, rgba(107,70,193,0.25) 0%, transparent 70%)',
           pointerEvents: 'none', zIndex: 0,
         }}
@@ -137,7 +137,7 @@ export default function Hero() {
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
         style={{
           position: 'absolute', bottom: '0%', left: '-15%',
-          width: '500px', height: '500px',
+          width: 'clamp(200px, 50vw, 500px)', height: 'clamp(200px, 50vw, 500px)',
           background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)',
           pointerEvents: 'none', zIndex: 0,
         }}
@@ -271,7 +271,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.8 }}
-          style={{ marginTop: '2rem', display: 'flex', gap: '4rem' }}
+          style={{ marginTop: '2rem', display: 'flex', gap: 'clamp(1.5rem, 5vw, 4rem)', flexWrap: 'wrap' }}
         >
           <StatCounter end={5} suffix="+" label="Years Exp." delay={0} />
           <StatCounter end={2} suffix="M+" label="Events / Day" delay={200} />

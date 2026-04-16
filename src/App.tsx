@@ -132,8 +132,9 @@ function EducationSection() {
 
 function ContactFooter() {
   const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0.85, 1], ['20px', '0px']);
-  const opacity = useTransform(scrollYProgress, [0.85, 1], [0, 1]);
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+  const y = useTransform(scrollYProgress, [0.85, 1], isMobile ? ['0px', '0px'] : ['20px', '0px']);
+  const opacity = useTransform(scrollYProgress, [0.85, 1], isMobile ? [1, 1] : [0, 1]);
 
   return (
     <motion.footer
@@ -277,7 +278,7 @@ function App() {
       <Background3D />
       <Navbar />
 
-      <main style={{ position: 'relative', zIndex: 1, width: '100%', overflowX: 'hidden' }}>
+      <main style={{ position: 'relative', zIndex: 1, width: '100%' }}>
         <Hero />
         <Marquee />
         <BentoGrid />

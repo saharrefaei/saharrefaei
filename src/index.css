@@ -19,7 +19,10 @@
   box-sizing: border-box;
 }
 
-html,
+html {
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--bg-dark);
   color: var(--text-primary);
@@ -145,6 +148,14 @@ body {
   html, body {
     cursor: auto;
     overflow-x: hidden;
+    /* Ensure touch scroll works natively on mobile */
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Allow native touch scroll on all elements */
+  * {
+    touch-action: pan-y pinch-zoom;
   }
 
   /* Sections padding */
