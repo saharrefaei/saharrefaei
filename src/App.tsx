@@ -30,6 +30,100 @@ function SectionDivider() {
   );
 }
 
+const educationData = [
+  {
+    degree: 'MSc',
+    years: '2022 – 2025',
+    title: 'Artificial Intelligence',
+    university: 'Brandenburg Technical University · Cottbus, Germany',
+    description: 'Specialized in federated learning, computer vision (Vision Transformers), model evaluation, and AI systems design. Thesis focused on distributed ML with early-exit architectures across heterogeneous clients.',
+    tags: ['Federated Learning', 'Vision Transformers', 'Computer Vision', 'PyTorch', 'Model Evaluation'],
+    color: 'rgba(107,70,193,',
+    accentColor: 'var(--accent-light)',
+    borderColor: 'rgba(107,70,193,0.55)',
+    delay: 0.15,
+  },
+  {
+    degree: 'BSc',
+    years: '2017 – 2021',
+    title: 'Computer Engineering',
+    university: 'University of Birjand · Birjand, Iran',
+    description: 'Studied core computer engineering fundamentals including algorithms, data structures, software engineering, and computer networks.',
+    tags: ['Algorithms', 'Data Structures', 'Software Engineering', 'Computer Networks', 'Operating Systems'],
+    color: 'rgba(14,165,233,',
+    accentColor: '#7dd3fc',
+    borderColor: 'rgba(14,165,233,0.55)',
+    delay: 0.3,
+  },
+];
+
+function EducationCard({ edu }: { edu: typeof educationData[0] }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, delay: edu.delay }}
+      className="glass-panel education-card"
+      style={{
+        padding: 'clamp(1.5rem, 3vw, 3.5rem)',
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr',
+        gap: 'clamp(1.2rem, 3vw, 2.5rem)',
+        alignItems: 'center',
+        borderLeft: `3px solid ${edu.borderColor}`,
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: `radial-gradient(ellipse at 0% 50%, ${edu.color}0.08), transparent 60%)`,
+      }} />
+
+      <div style={{
+        position: 'relative', zIndex: 1,
+        textAlign: 'center',
+        padding: '1.5rem 2rem',
+        background: `${edu.color}0.08)`,
+        border: `1px solid ${edu.color}0.2)`,
+        borderRadius: '16px',
+        flexShrink: 0,
+      }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, color: edu.accentColor, lineHeight: 1 }}>
+          {edu.degree}
+        </div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.4rem', letterSpacing: '0.08em' }}>
+          {edu.years}
+        </div>
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 1, minWidth: 0 }}>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.3rem, 2.5vw, 2.2rem)', color: 'white', marginBottom: '0.4rem' }}>
+          {edu.title}
+        </h3>
+        <p style={{ color: edu.accentColor, fontSize: '1rem', marginBottom: '1rem' }}>
+          {edu.university}
+        </p>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.7, maxWidth: '600px' }}>
+          {edu.description}
+        </p>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '1.2rem' }}>
+          {edu.tags.map(tag => (
+            <span key={tag} style={{
+              border: `1px solid ${edu.color}0.3)`,
+              padding: '4px 14px', borderRadius: '20px',
+              fontSize: '0.82rem', color: edu.accentColor,
+            }}>
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function EducationSection() {
   return (
     <section style={{ padding: '8vh 8vw 8vh', position: 'relative' }}>
@@ -59,72 +153,9 @@ function EducationSection() {
         </h2>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay: 0.15 }}
-        className="glass-panel education-card"
-        style={{
-          padding: 'clamp(1.5rem, 3vw, 3.5rem)',
-          display: 'grid',
-          gridTemplateColumns: 'auto 1fr',
-          gap: 'clamp(1.2rem, 3vw, 2.5rem)',
-          alignItems: 'center',
-          borderLeft: '3px solid rgba(107,70,193,0.55)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 0% 50%, rgba(107,70,193,0.08), transparent 60%)',
-        }} />
-
-        {/* Year badge */}
-        <div style={{
-          position: 'relative', zIndex: 1,
-          textAlign: 'center',
-          padding: '1.5rem 2rem',
-          background: 'rgba(107,70,193,0.08)',
-          border: '1px solid rgba(107,70,193,0.2)',
-          borderRadius: '16px',
-        }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 800, color: 'var(--accent-light)', lineHeight: 1 }}>
-            MSc
-          </div>
-          <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.4rem', letterSpacing: '0.08em' }}>
-            2022 – 2025
-          </div>
-        </div>
-
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 2.5vw, 2.2rem)', color: 'white', marginBottom: '0.4rem' }}>
-            Artificial Intelligence
-          </h3>
-          <p style={{ color: 'var(--accent-light)', fontSize: '1rem', marginBottom: '1rem' }}>
-            Brandenburg Technical University · Cottbus, Germany
-          </p>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.7, maxWidth: '600px' }}>
-            Specialized in federated learning, computer vision (Vision Transformers), model evaluation, and AI systems design.
-            Thesis focused on distributed ML with early-exit architectures across heterogeneous clients.
-          </p>
-          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '1.2rem' }}>
-            {['Federated Learning', 'Vision Transformers', 'Computer Vision', 'PyTorch', 'Model Evaluation'].map(tag => (
-              <span
-                key={tag}
-                style={{
-                  border: '1px solid rgba(107,70,193,0.3)',
-                  padding: '4px 14px', borderRadius: '20px',
-                  fontSize: '0.82rem', color: 'var(--accent-light)',
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      </motion.div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        {educationData.map(edu => <EducationCard key={edu.degree} edu={edu} />)}
+      </div>
     </div>
     </section>
   );
@@ -206,7 +237,7 @@ function ContactFooter() {
       >
         {[
           { label: 'LinkedIn', href: 'https://linkedin.com/in/sahar-refaei-585830214' },
-          { label: 'GitHub', href: 'https://github.com/meassaharcodecrafterss' },
+          { label: 'GitHub', href: 'https://github.com/saharrefaei' },
         ].map(link => (
           <motion.a
             key={link.label}
