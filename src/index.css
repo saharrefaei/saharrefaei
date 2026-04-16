@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg-dark: #030303;
+  --text-primary: #f5f5f7;
+  --text-secondary: #86868b;
+  --accent: #6b46c1;
+  --accent-light: #9f7aea;
+  --glass-bg: rgba(20, 20, 25, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.05);
+
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ─── Keyframe Animations ─── */
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(107, 70, 193, 0.3), 0 0 40px rgba(107, 70, 193, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(107, 70, 193, 0.7), 0 0 80px rgba(107, 70, 193, 0.3); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes border-glow {
+  0%, 100% { border-color: rgba(107, 70, 193, 0.2); }
+  50% { border-color: rgba(107, 70, 193, 0.6); }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ─── Utility Classes ─── */
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--text-secondary) 0%,
+    #ffffff 25%,
+    var(--accent-light) 50%,
+    #ffffff 75%,
+    var(--text-secondary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 5s linear infinite;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.accent-gradient-text {
+  background: linear-gradient(135deg, var(--accent-light), #cbd5e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.glass-panel:hover {
+  border-color: rgba(107, 70, 193, 0.2);
+  background: rgba(25, 20, 40, 0.6);
+}
+
+.glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+.cursor-none {
+  cursor: none;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: white;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+/* ─── Mobile Responsive ─── */
+
+@media (max-width: 768px) {
+  html, body {
+    cursor: auto;
+    overflow-x: hidden;
+  }
+
+  /* Sections padding */
+  section {
+    padding-left: 5vw !important;
+    padding-right: 5vw !important;
+  }
+
+  /* Bento grid: force single column */
+  .bento-outer-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .bento-outer-grid > * {
+    grid-column: 1 / -1 !important;
+    min-height: auto !important;
+  }
+
+  /* Hide desktop-only nav links */
+  .nav-links {
+    display: none !important;
+  }
+
+  /* Timeline: hide date/dot columns, show inline date */
+  .timeline-row {
+    grid-template-columns: 0 0 1fr !important;
+    gap: 0 !important;
+  }
+  .timeline-date,
+  .timeline-dot-col {
+    display: none !important;
+  }
+  .timeline-date-mobile {
+    display: block !important;
+  }
+
+  /* Footer LET'S TALK smaller */
+  .lets-talk {
+    font-size: clamp(3rem, 18vw, 6rem) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  section {
+    padding-left: 4vw !important;
+    padding-right: 4vw !important;
+  }
+}
