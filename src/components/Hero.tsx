@@ -255,7 +255,7 @@ export default function Hero() {
             lineHeight: 1.75,
           }}
         >
-          MSc Artificial Intelligence · 5+ years building full-stack platforms, data pipelines, and AI systems at scale across Berlin and beyond.
+          MSc Artificial Intelligence · 4+ years building full-stack platforms, data pipelines, and AI systems at scale across Berlin and beyond.
         </motion.p>
 
         {/* Divider */}
@@ -273,7 +273,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 1.8 }}
           style={{ marginTop: '2rem', display: 'flex', gap: 'clamp(1.5rem, 5vw, 4rem)', flexWrap: 'wrap' }}
         >
-          <StatCounter end={5} suffix="+" label="Years Exp." delay={0} />
+          <StatCounter end={4} suffix="+" label="Years Exp." delay={0} />
           <StatCounter end={2} suffix="M+" label="Events / Day" delay={200} />
           <StatCounter end={3} suffix="" label="Companies" delay={400} />
         </motion.div>
