@@ -1,5 +1,17 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, useInView } from "framer-motion";
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
+}
 
 const experiences = [
   {
@@ -73,25 +85,25 @@ const experiences = [
 function TimelineCard({ exp, index }: { exp: (typeof experiences)[0]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const isMobile = useIsMobile();
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, x: 40 }}
+      initial={{ opacity: 0, x: isMobile ? 0 : 40 }}
       animate={inView ? { opacity: 1, x: 0 } : {}}
       transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="timeline-row"
       style={{
         display: "grid",
-        gridTemplateColumns: "clamp(80px, 12vw, 160px) 28px 1fr",
-        gap: "0 1rem",
+        gridTemplateColumns: isMobile ? "1fr" : "clamp(100px, 12vw, 160px) 28px 1fr",
+        gap: isMobile ? "0" : "0 1.5rem",
         marginBottom: index === experiences.length - 1 ? 0 : "3rem",
         alignItems: "flex-start",
         minWidth: 0,
       }}
     >
       {/* Date column */}
-      <div className="timeline-date" style={{ textAlign: "right", paddingTop: "1.4rem" }}>
+      <div style={{ display: isMobile ? "none" : "block", textAlign: "right", paddingTop: "1.4rem" }}>
         <div style={{ color: exp.color, fontSize: "0.78rem", fontWeight: 600, letterSpacing: "0.06em", lineHeight: 1.4 }}>
           {exp.date.split(" — ").join("\n—\n").split("\n").map((part, i) => (
             <span key={i} style={{ display: "block" }}>{part}</span>
@@ -115,7 +127,7 @@ function TimelineCard({ exp, index }: { exp: (typeof experiences)[0]; index: num
       </div>
 
       {/* Dot + line column */}
-      <div className="timeline-dot-col" style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "1.2rem" }}>
+      <div style={{ display: isMobile ? "none" : "flex", flexDirection: "column", alignItems: "center", paddingTop: "1.2rem" }}>
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={inView ? { scale: 1, opacity: 1 } : {}}
@@ -152,7 +164,7 @@ function TimelineCard({ exp, index }: { exp: (typeof experiences)[0]; index: num
         }}
       >
         {/* Date shown inside card on mobile */}
-        <div className="timeline-date-mobile" style={{ display: "none", color: exp.color, fontSize: "0.78rem", fontWeight: 600, marginBottom: "0.5rem", letterSpacing: "0.06em" }}>
+        <div style={{ display: isMobile ? "block" : "none", color: exp.color, fontSize: "0.78rem", fontWeight: 600, marginBottom: "0.5rem", letterSpacing: "0.06em" }}>
           {exp.date} · {exp.location}
         </div>
 
