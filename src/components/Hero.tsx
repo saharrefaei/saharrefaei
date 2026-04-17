@@ -2,6 +2,29 @@ import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
 import { ArrowDown } from 'lucide-react';
 
+const SOCIALS = [
+  {
+    label: 'LinkedIn',
+    href: 'https://linkedin.com/in/sahar-refaei-585830214',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+        <rect x="2" y="9" width="4" height="12"/>
+        <circle cx="4" cy="4" r="2"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'GitHub',
+    href: 'https://github.com/saharrefaei',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+      </svg>
+    ),
+  },
+];
+
 const ROLES = [
   'Software & Data Engineer',
   'AI / ML Engineer',
@@ -276,6 +299,41 @@ export default function Hero() {
           <StatCounter end={4} suffix="+" label="Years Exp." delay={0} />
           <StatCounter end={2} suffix="M+" label="Events / Day" delay={200} />
           <StatCounter end={3} suffix="" label="Companies" delay={400} />
+        </motion.div>
+
+        {/* Social links */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 2.1 }}
+          style={{ marginTop: '2.2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}
+        >
+          {SOCIALS.map((s) => (
+            <motion.a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ y: -2, borderColor: 'rgba(107,70,193,0.6)', color: 'white' }}
+              whileTap={{ scale: 0.96 }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.55rem 1.2rem',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '50px',
+                color: 'var(--text-secondary)',
+                textDecoration: 'none',
+                fontSize: '0.85rem',
+                letterSpacing: '0.03em',
+                background: 'rgba(255,255,255,0.03)',
+                transition: 'color 0.2s, border-color 0.2s',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              {s.icon}
+              {s.label}
+            </motion.a>
+          ))}
         </motion.div>
       </motion.div>
 
