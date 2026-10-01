@@ -1,73 +1,117 @@
-# React + TypeScript + Vite
+# Hi, I'm Sahar 👋
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Software Engineer · AI Engineer · Frontend & Applied AI
 
-Currently, two official plugins are available:
+I'm a Software Engineer based in Berlin, working at the intersection of **software engineering, frontend systems, and artificial intelligence**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+My background is primarily in modern frontend engineering with **React, React Native, and TypeScript**, while my current focus is increasingly centered around **AI engineering, intelligent applications, LLM-powered systems, and AI-assisted software development**.
 
-## React Compiler
+I'm also pursuing an **M.Sc. in Artificial Intelligence**, where I'm expanding my knowledge in machine learning, intelligent systems, and applied AI.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🤖 AI Engineering
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+I'm especially interested in building AI into real software products — not only experimenting with models, but integrating them into reliable and useful applications.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Areas I'm currently exploring:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Large Language Models (LLMs)
+- AI agents and agentic workflows
+- Retrieval-Augmented Generation (RAG)
+- Prompt engineering
+- AI application architecture
+- LLM evaluation and testing
+- AI-powered developer tooling
+- Automation with AI
+- Machine Learning fundamentals
+- Intelligent user experiences
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 👩‍💻 Software Engineering
+
+I enjoy taking complex product problems and turning them into simple, scalable, and maintainable systems.
+
+```text
+Languages       TypeScript · JavaScript · Python
+Frontend        React · React Native
+State           Redux Toolkit · Zustand
+AI              LLMs · RAG · Prompt Engineering · AI Agents
+Testing         Jest · React Testing Library
+Product         A/B Testing · Feature Flags · Analytics
+Tools           Git · GitHub · Figma · Jira · Notion
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🚀 What I'm currently focused on
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```ts
+const sahar = {
+  role: "Software Engineer",
+  direction: "AI Engineering",
+  location: "Berlin, Germany 🇩🇪",
+
+  currentFocus: [
+    "Applied AI",
+    "LLM-powered applications",
+    "AI agents",
+    "RAG systems",
+    "AI-assisted software development",
+    "Frontend architecture",
+  ],
+
+  education: "M.Sc. Artificial Intelligence",
+};
 ```
+
+---
+
+## 🧠 What I like building
+
+- AI-powered product experiences
+- LLM-integrated applications
+- Intelligent internal tools
+- Automation workflows
+- Scalable frontend architecture
+- Cross-platform React applications
+- Experiment-driven product features
+- Developer productivity tooling
+
+---
+
+## 📚 Currently learning
+
+I'm currently deepening my knowledge in:
+
+- Machine Learning
+- Deep Learning
+- LLM application development
+- Embeddings and vector search
+- Retrieval-Augmented Generation
+- AI agents
+- Model evaluation
+- AI system design
+- Python for AI engineering
+
+---
+
+## 🌱 My engineering philosophy
+
+I like software that is:
+
+**Simple for users.  
+Understandable for engineers.  
+Measurable for product teams.  
+And increasingly intelligent.**
+
+I'm particularly interested in how AI can become a native part of software architecture rather than just an additional feature.
+
+---
+
+
+## 📫 Connect with me
+
+[LinkedIn](YOUR_LINKEDIN_URL)
+![SAHAR'S WEBSITE](https://saharrefaei.uk/)
