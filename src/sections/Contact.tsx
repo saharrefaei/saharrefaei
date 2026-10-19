@@ -13,7 +13,7 @@ export function Contact() {
   return (
     <section id="contact" className="section on-ink contact" data-scene-section aria-labelledby="contact-title">
       <div className="container">
-        <p className="eyebrow contact__eyebrow">05 — Contact</p>
+        <p className="eyebrow contact__eyebrow">06 — Contact</p>
 
         <div className="contact__dots">
           <DotText

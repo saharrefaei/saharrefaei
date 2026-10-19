@@ -1,5 +1,5 @@
 /** Which generated visual (see ProjectVisual) represents the project. */
-export type ProjectVisualKind = 'network' | 'radar' | 'orb' | 'pipeline' | 'bars' | 'layers'
+export type ProjectVisualKind = 'network' | 'orb' | 'pipeline' | 'bars' | 'layers'
 
 export type Project = {
   id: string
@@ -27,16 +27,6 @@ export const projects: Project[] = [
       'A federated-learning framework where each client trains only the Vision Transformer depth that fits its local data complexity — combined with mask-aware aggregation and entropy-based routing.',
     tech: ['PyTorch', 'Vision Transformers', 'Federated Learning', 'Python'],
     visual: 'network',
-  },
-  {
-    id: 'policy-radar',
-    title: 'Iran Policy Radar',
-    kind: 'Web app · AI-assisted outreach',
-    description:
-      'A dashboard for the diaspora advocacy community to browse and filter 200 decision-makers and draft outreach emails, with an optional OpenAI-powered generator that falls back to templates.',
-    tech: ['JavaScript', 'Python', 'OpenAI API'],
-    visual: 'radar',
-    github: 'https://github.com/saharrefaei/social-media-radar-public',
   },
   {
     id: 'genai-images',

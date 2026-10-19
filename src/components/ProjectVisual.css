@@ -30,16 +30,6 @@
   filter: drop-shadow(0 0 14px rgba(255, 90, 31, 0.9));
 }
 
-.pv-sweep {
-  transform-origin: 200px 200px;
-  animation: pv-spin 5s linear infinite;
-}
-
-.pv-blip {
-  fill: var(--pink);
-  animation: pv-blink 2.5s ease-in-out infinite;
-}
-
 .pv-float {
   animation: pv-bob 5s ease-in-out infinite;
 }
@@ -90,18 +80,6 @@
   }
 }
 
-@keyframes pv-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes pv-blink {
-  50% {
-    opacity: 0.2;
-  }
-}
-
 @keyframes pv-bob {
   50% {
     transform: translateY(-10px);
@@ -116,8 +94,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pv-link,
-  .pv-sweep,
-  .pv-blip,
   .pv-float,
   .pv-flow,
   .pv-bar {

@@ -1,0 +1,340 @@
+/* Copy that lives inside the 3D scene (see Panel in ui3d.tsx). Authored at a fixed CSS width;
+   the 3D transform scales it to its world size, so everything here is in px/em. */
+
+.wp {
+  box-sizing: border-box;
+  padding: 22px 24px 24px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: left;
+  user-select: text;
+  backface-visibility: hidden;
+}
+
+.wp--paper {
+  color: var(--text-on-paper);
+  background: color-mix(in srgb, #eee8e3 90%, transparent);
+  border-left: 3px solid var(--ink);
+}
+
+.wp--ink {
+  color: var(--text-on-ink);
+  background: color-mix(in srgb, #14080f 96%, transparent);
+  border-left: 3px solid var(--orange);
+}
+
+.wp--heat {
+  color: var(--ink);
+  background: color-mix(in srgb, #f2561b 88%, transparent);
+  border-left: 3px solid var(--ink);
+}
+
+.wp h2,
+.wp h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  line-height: 0.92;
+}
+
+.wp h2 {
+  font-size: 40px;
+}
+
+.wp h3 {
+  font-size: 34px;
+}
+
+.wp p + p {
+  margin-top: 0.7em;
+}
+
+.wp__eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.wp--paper .wp__muted {
+  color: var(--text-on-paper-muted);
+}
+
+.wp--ink .wp__muted {
+  color: var(--text-on-ink-muted);
+}
+
+.wp--heat .wp__muted {
+  color: #2a1008;
+}
+
+.wp__lead {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 23px;
+  line-height: 1.16;
+  letter-spacing: -0.015em;
+}
+
+.wp__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.wp__chips li {
+  padding: 3px 11px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.wp__now {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: var(--ink);
+}
+
+.wp__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.wp .pill {
+  min-height: 40px;
+  font-size: 15px;
+}
+
+.wp__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1.5px solid currentColor;
+}
+
+.wp__facts dd {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.wp__facts dt {
+  opacity: 0.75;
+}
+
+/* floating interest labels */
+
+.wp-tag {
+  display: block;
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.wp-tag__title {
+  display: block;
+  font-size: 54px;
+}
+
+.wp-tag__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.wp-tag__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--group);
+}
+
+.wp-tag__note {
+  display: block;
+  max-width: 330px;
+  margin-top: 10px;
+  font-family: var(--font-body);
+  font-stretch: 100%;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-on-paper-muted);
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    opacity 0.35s var(--ease-out),
+    max-height 0.45s var(--ease-out);
+}
+
+.wp-tag:hover .wp-tag__note,
+.wp-tag:focus-visible .wp-tag__note {
+  opacity: 1;
+  max-height: 140px;
+}
+
+.wp-tag:hover .wp-tag__title,
+.wp-tag:focus-visible .wp-tag__title {
+  background: linear-gradient(100deg, var(--orange), var(--pink) 60%, var(--magenta));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── bare panels (no card, just type floating in space) ── */
+.wp.wp--bare {
+  padding: 0;
+  background: none;
+  border: 0;
+}
+
+/* ── badges: real vs sample ── */
+.wp__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.wp__badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.wp__badge--real {
+  background: #8ff0b4;
+  color: #0b2a17;
+}
+
+.wp__badge--sample {
+  background: var(--orange);
+  color: var(--ink);
+}
+
+/* ── photo thumbnails inside event panels ── */
+.wp__thumbs {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.wp__thumbs button {
+  display: block;
+  width: 64px;
+  height: 46px;
+  overflow: hidden;
+  border-radius: 6px;
+  opacity: 0.8;
+  transition:
+    opacity 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.wp__thumbs button:hover,
+.wp__thumbs button:focus-visible {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.wp__thumbs img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── contact rows ── */
+.wp__rows {
+  margin-top: 18px;
+  border-top: 1px solid rgba(255, 250, 246, 0.35);
+}
+
+.wp__row {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 250, 246, 0.35);
+  transition:
+    background-color 0.3s var(--ease-out),
+    color 0.3s var(--ease-out),
+    padding 0.3s var(--ease-out);
+}
+
+.wp__row:hover,
+.wp__row:focus-visible {
+  padding-inline: 10px;
+  background: var(--orange);
+  color: var(--ink);
+}
+
+.wp__row:hover .wp__muted,
+.wp__row:focus-visible .wp__muted {
+  color: var(--ink);
+}
+
+.wp__row-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  font-size: 25px;
+  line-height: 1;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.wp__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 16px;
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .wp__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+  }
+  .wp__row > .wp__eyebrow {
+    grid-column: 1 / -1;
+  }
+  .wp__row-value {
+    font-size: 17px;
+  }
+}
+
+/* item headings (h2 in the DOM for a correct outline) keep the smaller display size */
+.wp .wp__h {
+  font-size: 34px;
+}

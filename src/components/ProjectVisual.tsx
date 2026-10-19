@@ -40,32 +40,6 @@ function Network() {
   )
 }
 
-function Radar({ uid }: ArtProps) {
-  const blips = [
-    [262, 150, 5],
-    [150, 120, 4],
-    [120, 245, 6],
-    [285, 262, 4],
-    [215, 90, 3],
-    [180, 300, 5],
-  ]
-  return (
-    <g>
-      {[50, 100, 150, 190].map((r) => (
-        <circle key={r} cx="200" cy="200" r={r} className="pv-line" />
-      ))}
-      <line x1="10" y1="200" x2="390" y2="200" className="pv-line" />
-      <line x1="200" y1="10" x2="200" y2="390" className="pv-line" />
-      <g className="pv-sweep">
-        <path d="M200 200 L200 10 A190 190 0 0 1 335 65 Z" fill={`url(#${uid}-sweep)`} />
-      </g>
-      {blips.map(([x, y, r], i) => (
-        <circle key={i} cx={x} cy={y} r={r} className="pv-blip" style={{ animationDelay: `${i * 0.5}s` }} />
-      ))}
-    </g>
-  )
-}
-
 function Orb({ uid }: ArtProps) {
   return (
     <g className="pv-float">
@@ -139,7 +113,6 @@ function Layers() {
 
 const ARTWORK: Record<ProjectVisualKind, (props: ArtProps) => React.ReactElement> = {
   network: Network,
-  radar: Radar,
   orb: Orb,
   pipeline: Pipeline,
   bars: Bars,
@@ -161,10 +134,6 @@ export function ProjectVisual({ kind }: { kind: ProjectVisualKind }) {
           <stop offset="0.45" stopColor="#ff3d8b" />
           <stop offset="1" stopColor="#c21fd8" />
         </radialGradient>
-        <linearGradient id={`${uid}-sweep`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#ff5a1f" stopOpacity="0" />
-          <stop offset="1" stopColor="#ff5a1f" stopOpacity="0.65" />
-        </linearGradient>
         <linearGradient id={`${uid}-bar`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#ff5a1f" />
           <stop offset="1" stopColor="#c21fd8" />

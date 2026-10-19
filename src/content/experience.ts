@@ -1,6 +1,8 @@
 export type Experience = {
   id: string
   company: string
+  /** Short label for the big 3D title (letters, digits and basic punctuation only). */
+  shortName: string
   role: string
   location: string
   /** Free-form so entries without a confirmed end date stay honest. */
@@ -18,6 +20,7 @@ export const experience: Experience[] = [
   {
     id: 'taxfix',
     company: 'Taxfix',
+    shortName: 'TAXFIX',
     role: 'Software Engineer',
     location: 'Berlin, Germany',
     period: 'Present',
@@ -29,6 +32,7 @@ export const experience: Experience[] = [
   {
     id: 'almedia',
     company: 'Almedia',
+    shortName: 'ALMEDIA',
     role: 'Software & Data Engineer',
     location: 'Berlin, Germany',
     period: '2025',
@@ -39,6 +43,7 @@ export const experience: Experience[] = [
   {
     id: '50hertz',
     company: '50Hertz Transmission',
+    shortName: '50HERTZ',
     role: 'Software Developer',
     location: 'Berlin, Germany',
     period: 'Mar 2023 – Jun 2025',
@@ -49,6 +54,7 @@ export const experience: Experience[] = [
   {
     id: 'btu',
     company: 'BTU Cottbus–Senftenberg',
+    shortName: 'BTU COTTBUS',
     role: 'AI Engineer (Research)',
     location: 'Cottbus, Germany',
     period: 'Mar 2023 – Jun 2025',
@@ -59,6 +65,7 @@ export const experience: Experience[] = [
   {
     id: 'part-software',
     company: 'Part Software Group',
+    shortName: 'PART SOFTWARE',
     role: 'Data Engineer',
     location: 'Mashhad, Iran',
     period: 'Jan 2019 – Dec 2021',

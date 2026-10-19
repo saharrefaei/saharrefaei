@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { startSceneInput } from '../lib/sceneInput'
 import { useCoarsePointer, useNarrowViewport, usePrefersReducedMotion } from '../lib/capabilities'
@@ -14,6 +14,15 @@ export default function SceneLayer() {
   const narrow = useNarrowViewport()
   const coarse = useCoarsePointer()
   const reducedMotion = usePrefersReducedMotion()
+
+  // R3F force-loses the GL context when it unmounts; that must not look like a real context loss
+  const alive = useRef(true)
+  useEffect(() => {
+    alive.current = true
+    return () => {
+      alive.current = false
+    }
+  }, [])
 
   useEffect(() => {
     if (reducedMotion) return
@@ -31,7 +40,7 @@ export default function SceneLayer() {
           gl.domElement.addEventListener('webglcontextlost', (event) => {
             event.preventDefault()
             // Fall back to the CSS visuals if the GPU context is lost.
-            delete document.documentElement.dataset.scene
+            if (alive.current) delete document.documentElement.dataset.scene
           })
           // three.js restores the context itself; show the scene again once it has.
           gl.domElement.addEventListener('webglcontextrestored', () => {

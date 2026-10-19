@@ -7,81 +7,128 @@
 
 ```bash
 npm ci
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:5173  (dev builds also expose window.__journey with the live camera position)
 npm run build      # tsc -b && vite build  → dist/
 npm run preview    # serve the production build
 npm run lint
 ```
 
 Deployment is unchanged: Netlify runs `npm run build` and publishes `dist/` (`netlify.toml`, with the SPA fallback
-redirect). No new build step or environment variable was introduced.
+redirect). No new build step or environment variable was introduced. Static assets live in `public/`
+(`/fonts`, `/events`, `og.jpg`).
 
-## Stack
+## The core idea: a camera journey, not a page
 
-| Concern | Choice | Why |
+The site is **one fixed WebGL world**. Scrolling does not move content past a static camera; it moves a
+`PerspectiveCamera` along a spline through the scene, and every piece of content is placed at a real position in
+that scene.
+
+```
+native scroll (wheel / trackpad / touch / keyboard / anchors)
+   → journey.k           float "keyframe index" derived from where you are in the page
+   → damped + eased      smooth interpolation, with a dwell at each stop so copy is readable
+   → CatmullRomCurve3    camera position and look-at target on two splines through the keyframes
+   → camera              + a small pointer parallax
+```
+
+* **One scroll system.** Native page scroll only. The page just provides scroll *length*: tall, empty
+  `[data-journey-section]` elements (`#top`, `#about`, `#experience`, … `#contact`). They double as anchors, so
+  nav links, the back button, deep links and keyboard scrolling all work, and nothing intercepts the wheel.
+  There is no GSAP/ScrollControls/Lenis: `journey.ts` is plain mutable state read inside `useFrame`, so scrolling
+  causes no React renders.
+* **The path is built from content** (`world/path.ts`). One keyframe per job, project, interest group and event
+  (plus hero, about, contact). Add an entry to `src/content/*` and the road gets longer automatically.
+* **Content lives in the world** via `<Anchor kf nx ny d>` (`world/layout.tsx`): a group fixed in world space at
+  `(nx, ny)` of the visible area, `d` units in front of that keyframe's camera. The same layout therefore adapts to a
+  phone or a monitor, while the result is a fixed place the camera really flies past.
+  * **3D lettering**: extruded `Text3D` titles (SAHAR REFAEI, ABOUT, company names, HACKATHON, …).
+  * **3D objects**: the chrome orb rig, one sculpture per project (`ProjectModels.tsx`), floating photo frames,
+    a dot-matrix `HELLO` made of instanced spheres.
+  * **Readable copy**: real DOM in `<Html transform>` panels (`ui3d.tsx`). They share the WebGL camera's matrices,
+    so they get true perspective and parallax, yet stay selectable, crawlable and accessible.
+* **Depth cues** (`Backdrop.tsx`): ~3k drifting dots through the whole volume, hoops the camera flies through
+  between stops, chrome shards at varying distances, and fog + background colour that change per section.
+* **Culling**: anchors only mount while the camera is within a few keyframes (`useNearKf`), so only the nearby
+  part of the world is ever alive.
+
+### Two renderings of the same content
+
+`App.tsx` chooses at runtime:
+
+| Mode | When | What |
 | --- | --- | --- |
-| Build / UI | Vite 8, React 19, TypeScript | Unchanged from the existing project. |
-| 3D | three.js via `@react-three/fiber` + `@react-three/drei` | Already installed; drei is used for `Environment`, `Lightformer`, `MeshDistortMaterial` only. |
-| Motion | `framer-motion` (Motion for React) | One animation library for reveals and scroll-linked values. GSAP was deliberately **not** added. |
-| Styling | Plain CSS: design tokens + one CSS file per component | No runtime CSS library; `sass`, `clsx`, `tailwind-merge`, `lucide-react` and `lenis` were removed (unused or counter to the brief). |
-| Fonts | `@fontsource-variable/bricolage-grotesque` (display), `@fontsource-variable/instrument-sans` (body) | Both SIL OFL, self-hosted (no Google Fonts request). Bricolage's width axis gives the condensed poster lettering. |
+| **world** | WebGL works, device not very low-end, no reduced-motion preference | the camera journey above |
+| **flat** | no WebGL, very low-end device, `prefers-reduced-motion`, or WebGL context lost mid-session | the ordinary accessible scrolling page (`src/sections/*`) with a static decorative orb |
+
+Both read the same data in `src/content/`. The 3D code is a lazy chunk the flat page never downloads.
 
 ## Source layout
 
 ```
 src/
-  App.tsx              page shell (skip link, header, scene host, sections, footer)
-  styles/              tokens.css (colour/type/spacing) · base.css (reset, utilities, .on-ink/.on-paper/.on-heat)
-  content/             typed data: profile, experience, projects, interests — edit copy here, not in JSX
-  sections/            Hero · About · Experience · Projects · Interests · Contact (+ colocated CSS)
-  components/          DotText, DotTicker, motion (FadeUp, MaskHeading, ScrollWords, ScrollBand),
-                       SectionHead, ProjectVisual, Header, CursorFollower, SiteFooter
-  scene/               SceneHost (lazy, guarded) → SceneLayer (Canvas) → Composition (objects) · poses.ts
-  lib/                 dotFont (5×7 glyph table), sceneInput (scroll/pointer state), capabilities (feature detection, media-query hooks)
+  App.tsx              mode switch (world / flat), skip link, header
+  content/             typed data: profile, experience, projects, interests, events. Edit copy here
+  world/               THE 3D EXPERIENCE
+    path.ts            keyframes → camera + look-at splines, per-keyframe camera frames
+    journey.ts         scroll → keyframe index (+ dwell/travel easing)
+    CameraRig.tsx      camera motion, atmosphere (background/fog/light)
+    layout.tsx / layoutCore.ts   Anchor, responsive layout, near-keyframe culling
+    ui3d.tsx           Title3D (extruded text), Panel (DOM in 3D)
+    Backdrop.tsx       stars, gates, shards
+    ProjectModels.tsx  one 3D sculpture per project
+    stations/          Intro (hero, about) · Work (experience, projects) · Showcase (focus, events, contact)
+    lightboxStore.ts   tiny external store for the fullscreen photo viewer
+    WorldExperience.tsx  loader, scroll track, progress rail
+  scene/               OrbRig (shared signature object), Composition + SceneHost (flat mode only)
+  sections/            flat-mode sections
+  components/          Lightbox, DotText, Header, motion helpers, …
+  lib/                 dot-matrix font, capability detection, shared pointer state
+public/fonts/          3D typeface (see below)   public/events/   event photos
+scripts/               instance-font.py, build-typeface.mjs (how the 3D typeface was produced)
 ```
 
-## Key decisions
+## Events & community: replacing the sample photos
 
-1. **Content first, 3D as enhancement.** Every section is real HTML that works without WebGL. `SceneHost` only mounts
-   the 3D layer when WebGL context creation succeeds, the device is not very low-end, and the browser is idle after
-   first paint. The WebGL code is a separate lazy chunk (~253 kB gzip) so the main bundle stays ~110 kB gzip.
-   Failure modes fall back to the same CSS orb stand-ins in the hero: no WebGL, context loss (`webglcontextlost`), or
-   an exception in the scene tree (error boundary).
-2. **One fixed canvas, choreographed by scroll.** The canvas is `position: fixed` at `z-index: 1`; section backgrounds
-   paint below it and `.container` content (`z-index: 2`) above it, so the objects drift *between* backgrounds and
-   text. Each `<section data-scene-section>` has a pose in `scene/poses.ts` (position, scale, ring spread, yaw);
-   `lib/sceneInput.ts` turns scroll position into a float section index that holds a pose for the first 55 % of a
-   section and eases to the next. Scroll and pointer state live in a plain mutable object read inside `useFrame`,
-   never in React state, so scrolling causes no React re-renders.
-3. **No scroll hijacking.** Smooth wheel scrolling (Lenis) was removed; all motion is driven *by* native scroll.
-   The native cursor is never hidden; the trailing ring (`CursorFollower`) is added only for fine pointers.
-4. **Original dot-matrix typography, not a font.** `lib/dotFont.ts` is a hand-authored 5×7 glyph table drawn on
-   `<canvas>` by `DotText`: a light-on reveal, pointer-proximity swell and an endless `DotTicker`. This echoes the
-   LED-display feel of the reference without using its proprietary typeface.
-5. **Generated project visuals instead of fake screenshots.** `ProjectVisual` draws an SVG illustration per
-   project (network, radar, orb, pipeline, bars, layers). They illustrate the idea of a project and never imitate a UI.
-6. **Lighting without network fetches.** Chrome reflections come from `Lightformer`s baked once into the environment
-   map, so no HDR file is downloaded from a CDN.
-7. **Outlines are avoided on the variable display font.** `-webkit-text-stroke` exposes the font's overlapping
-   contours, so large "ghost" type uses tonal fills instead.
+Everything lives in `src/content/events.ts`.
+
+1. Put your photos in `public/events/` (JPG/WebP, about 1600 px on the long side keeps the scene light).
+2. Edit each photo's `src`, `alt`, `caption` and **delete `sample: true`**.
+3. Add photos or whole events by copying an entry; each event becomes one stop on the journey.
+4. Delete the two *Sample event* entries when you have real ones.
+
+Honesty is built into the UI: an event with `verified: false` shows a **Sample event** badge, and any photo with
+`sample: true` shows a **Sample photo** badge (also drawn in 3D under the frame and inside the viewer). The
+*Claude × Taxfix Hackathon* entry states only what was provided: Berlin, "helped organize". Add `date` once you
+want it shown. The placeholder JPGs are generated, clearly labelled images, not stock photos.
+
+Viewer: click a floating frame, a thumbnail or *View photos*. Arrow keys / swipe change photo, Escape closes, focus
+is trapped and restored.
+
+## The 3D typeface
+
+`public/fonts/bricolage-800-cond.typeface.json` was generated from Bricolage Grotesque (SIL OFL, licence in
+`public/fonts/OFL.txt`): `scripts/instance-font.py` pins the variable font to `wght 800 / wdth 75`, then
+`scripts/build-typeface.mjs` converts the outlines to the JSON that drei `<Text3D>` reads. Re-run these two steps
+(needs `fonttools`, `brotli`, and `npm i --no-save opentype.js`) to add glyphs.
 
 ## Accessibility & motion
 
-- Semantic landmarks (`header`, `nav`, `main`, labelled `section`s, `footer`), one `h1`, skip link, visible 3 px focus
-  ring on every control, new-tab links announced to screen readers.
-- `prefers-reduced-motion`: CSS animations are disabled globally; `MotionConfig reducedMotion="user"` drops transform
-  animations; reveals render in their final state; the canvas switches to `frameloop="demand"` with a static pose; the
-  cursor follower, scroll bands and dot reveals are off.
-- Decorative visuals (`DotText` with `label=""`, ticker, band, project art, canvas) are `aria-hidden`; the
-  information they show is always present as real text elsewhere.
-- Interests are real `<button>`s: hover, focus and tap all drive the readout, which is an `aria-live` region.
+* The canvas is `aria-hidden`; the *readable* content is real DOM (panels) plus one `sr-only` `h1`. Each panel is
+  self-contained (its own `h2`), so the outline stays valid whichever panels are mounted. A visible
+  **Simple version / 3D journey** switch is the second tab stop; the choice is remembered.
+* Off-screen panels are `visibility: hidden`, which also removes their links from the tab order, so keyboard focus
+  can never land on something you cannot see. Page-level keyboard scrolling (Space, PageDown, End) drives the camera.
+* `prefers-reduced-motion` → the flat page (no camera travel). Decorative animation is also disabled in CSS.
+* The fullscreen viewer is a real dialog (focus trap, Escape, restores focus, scroll lock, `aria-live` counter).
+* Touch: the canvas is `touch-action: pan-y`, so vertical swipes scroll the page (and fly the camera) while taps
+  still reach the photo frames.
 
-## Performance notes
+## Performance
 
-- DPR is capped at 1.5, low-end devices skip WebGL, phones/tablets render fewer segments and halo dots.
-- Dot canvases only run `requestAnimationFrame` while revealing or while the pointer is near; otherwise they are static.
-- Measured on an Apple M5 Pro in headless Chrome (production build): 60 fps idle, 54 fps under scripted scrolling at
-  1440×860 @2×; 60 fps at 390×844 @3×. **Not measured on real low-end phones.**
+* Lazy-loaded 3D chunk; DPR capped at 1.5; phones/touch render fewer polygons, particles and shards.
+* Typeface preloaded with the world; event photos are fetched only when the camera is a few stops away.
+* Dev-measured (headless Chrome, Apple M5 Pro, production build): 60 fps idle and while scrolling at
+  1440×860 @2×; layout shift 0.0002. **Not measured on real low-end phones.**
 
 ## Content rules
 
@@ -91,7 +138,7 @@ Add a verified demo URL to a project's `live` field and the "Live demo" button a
 
 ## Known follow-ups
 
-- Confirm exact dates for Taxfix and Almedia and the M.Sc. period (see the summary in the pull request / hand-off).
-- `THREE.Clock` deprecation warning in the console comes from `@react-three/fiber` internals, not this code.
-- There is no automated test runner in the repository; verification used type-checking, ESLint, the production build,
-  axe-core, and scripted Chromium checks (see the hand-off summary).
+* Confirm exact dates for Taxfix and Almedia and the M.Sc. period.
+* `THREE.Clock` deprecation warning in the console comes from `@react-three/fiber` internals, not this code.
+* No automated test runner exists in the repository; verification used type-checking, ESLint, the production build,
+  axe-core, and scripted real-Chrome runs (wheel/touch/nav/back/viewer/keyboard, camera position readout).
