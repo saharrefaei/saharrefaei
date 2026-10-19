@@ -1,0 +1,14 @@
+.section-head {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 2rem);
+}
+
+.section-head__meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-title {
+  font-size: clamp(3.1rem, 1rem + 9vw, 9.5rem);
+}

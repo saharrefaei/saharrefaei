@@ -1,0 +1,27 @@
+.dot-ticker {
+  overflow: hidden;
+  width: 100%;
+}
+
+.dot-ticker__track {
+  display: flex;
+  width: max-content;
+  animation: dot-ticker-slide linear infinite;
+  will-change: transform;
+}
+
+.dot-ticker__copy {
+  flex: none;
+}
+
+@keyframes dot-ticker-slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot-ticker__track {
+    animation: none;
+  }
+}
