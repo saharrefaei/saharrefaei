@@ -29,7 +29,7 @@ export function Events() {
                     </span>
                     {allSample ? <span className="badge badge--sample">Sample photos</span> : null}
                   </p>
-                  {event.verified ? (
+                  {event.verified && event.role ? (
                     <p className="event__role">
                       <span>My role: </span>
                       <strong>{event.role}</strong>

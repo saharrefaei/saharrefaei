@@ -243,6 +243,7 @@
 /* ── photo thumbnails inside event panels ── */
 .wp__thumbs {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 14px;
 }

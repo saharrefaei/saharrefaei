@@ -9,7 +9,7 @@ import { renderDotGrid } from '../../lib/dotFont'
 import { Anchor } from '../layout'
 import { useAnchorMetrics, useLayout, useNearKf } from '../layoutCore'
 import { lightbox } from '../lightboxStore'
-import { sectionStart } from '../path'
+import { eventLeg, sectionStart } from '../path'
 import { Panel, Title3D } from '../ui3d'
 import { Orb } from './Intro'
 
@@ -210,7 +210,10 @@ function LoadedFrame({
   const side = index % 2 === 0 ? 1 : -1
   const x = side * (narrow ? 1.75 : side < 0 ? 5 + (index % 3) * 0.4 : 3.7 + (index % 3) * 0.35)
   const y = FRAME_Y[index % 4] * (narrow ? 0.8 : 1)
-  const z = -(8 + index * 6.2)
+  // spread the photos over this event's stretch of road (never more than 6.2 apart)
+  const count = event.photos.length
+  const step = count > 1 ? Math.min(6.2, (eventLeg(count) - 14) / (count - 1)) : 0
+  const z = -(8 + index * step)
   const image = texture.image as { width: number; height: number } | undefined
   const aspect = image ? image.width / image.height : 1.5
   const baseW = (aspect >= 1 ? 3.6 : 2.6) * (narrow ? 0.7 : 1)
@@ -297,7 +300,7 @@ function EventPanel({ event }: { event: CommunityEvent }) {
         </span>
         {allSample ? <span className="wp__badge wp__badge--sample">Sample photos</span> : null}
       </p>
-      {event.verified ? (
+      {event.verified && event.role ? (
         <p style={{ marginTop: 10 }}>
           <span className="wp__muted">My role: </span>
           <strong>{event.role}</strong>

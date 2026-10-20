@@ -100,7 +100,7 @@ export function Lightbox() {
                 {event.date ? ` · ${event.date}` : ''}
               </p>
               <h2 className="lightbox__title">{event.title}</h2>
-              {event.verified ? <p className="lightbox__role">{event.role}</p> : null}
+              {event.verified && event.role ? <p className="lightbox__role">{event.role}</p> : null}
             </div>
             <button type="button" className="pill" data-autofocus onClick={lightbox.close}>
               Close <span aria-hidden="true">✕</span>

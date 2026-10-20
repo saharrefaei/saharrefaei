@@ -90,19 +90,24 @@ public/fonts/          3D typeface (see below)   public/events/   event photos
 scripts/               instance-font.py, build-typeface.mjs (how the 3D typeface was produced)
 ```
 
-## Events & community: replacing the sample photos
+## Events & community: editing the gallery
 
-Everything lives in `src/content/events.ts`.
+Everything lives in `src/content/events.ts` (the file's header comment repeats these steps).
 
-1. Put your photos in `public/events/` (JPG/WebP, about 1600 px on the long side keeps the scene light).
-2. Edit each photo's `src`, `alt`, `caption` and **delete `sample: true`**.
-3. Add photos or whole events by copying an entry; each event becomes one stop on the journey.
-4. Delete the two *Sample event* entries when you have real ones.
+1. Put photos in `public/events/` (JPG/WebP, about 1600 px on the long side keeps the scene light; re-saving also strips
+   EXIF/GPS metadata).
+2. Add `{ src: '/events/<file>.jpg', alt: '...' }` to an event. `alt` describes what is visible.
+3. Each event is one stop on the journey; its photos float along the road, and the road lengthens with the photo count
+   (`eventLeg` in `world/path.ts`), so a big gallery never collides with the next event.
+4. `role` and `date` are optional and hidden when absent.
 
-Honesty is built into the UI: an event with `verified: false` shows a **Sample event** badge, and any photo with
-`sample: true` shows a **Sample photo** badge (also drawn in 3D under the frame and inside the viewer). The
-*Claude × Taxfix Hackathon* entry states only what was provided: Berlin, "helped organize". Add `date` once you
-want it shown. The placeholder JPGs are generated, clearly labelled images, not stock photos.
+Honesty is built into the UI: an event with `verified: false` shows a **Sample event** badge and a "SAMPLE" 3D title, and any
+photo with `sample: true` shows a **Sample photo** badge (also drawn in 3D under the frame and inside the viewer). Use those
+flags for placeholders; real events need neither.
+
+Current content: the *Claude × Taxfix Hackathon* (8 photos; role "Helped organize", exactly as provided) and *Claude
+Community Berlin* (2 photos, no role stated). Photos were grouped by what is visible in them (slides, laptop stickers,
+banners); fix the grouping in `events.ts` if any photo is in the wrong event.
 
 Viewer: click a floating frame, a thumbnail or *View photos*. Arrow keys / swipe change photo, Escape closes, focus
 is trapped and restored.

@@ -36,6 +36,9 @@ const PLUM = '#1d0f18'
 
 const v = (x: number, y: number, z: number) => new Vector3(x, y, z)
 
+/** Distance the camera travels past one event's photos: longer galleries get more road. */
+export const eventLeg = (photoCount: number) => Math.max(28, 12 + photoCount * 3.4)
+
 function build() {
   const list: Keyframe[] = []
   const push = (section: SectionId, pos: Vector3, look: Vector3, bg: string, theme: Theme) =>
@@ -67,9 +70,9 @@ function build() {
   }
 
   z -= 8
-  events.forEach(() => {
+  events.forEach((event) => {
     push('events', v(0, 0.3, z), v(0, 0.2, z - 14), PLUM, 'ink')
-    z -= 28
+    z -= eventLeg(event.photos.length)
   })
 
   z -= 4
