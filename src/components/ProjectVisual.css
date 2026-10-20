@@ -1,0 +1,102 @@
+.pv {
+  width: 100%;
+  height: 100%;
+}
+
+.pv-bg {
+  fill: var(--ink);
+}
+
+.pv-line {
+  fill: none;
+  stroke: rgba(255, 250, 246, 0.2);
+  stroke-width: 1;
+}
+
+.pv-link {
+  stroke: var(--orange);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 6;
+  opacity: 0.8;
+  animation: pv-dash 2.4s linear infinite;
+}
+
+.pv-node {
+  fill: var(--pink);
+}
+
+.pv-core {
+  fill: var(--orange);
+  filter: drop-shadow(0 0 14px rgba(255, 90, 31, 0.9));
+}
+
+.pv-float {
+  animation: pv-bob 5s ease-in-out infinite;
+}
+
+.pv-box {
+  fill: var(--ink-2);
+  stroke: rgba(255, 250, 246, 0.5);
+  stroke-width: 1.5;
+}
+
+.pv-box--hot {
+  fill: var(--magenta);
+  stroke: var(--pink);
+}
+
+.pv-label {
+  fill: var(--white);
+  font: 700 15px var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pv-flow {
+  stroke: var(--orange);
+  stroke-width: 2;
+  stroke-dasharray: 6 8;
+  animation: pv-dash 1.6s linear infinite;
+}
+
+.pv-bar {
+  animation: pv-eq 1.4s ease-in-out infinite;
+}
+
+.pv-plate {
+  fill: rgba(255, 250, 246, 0.06);
+  stroke: rgba(255, 250, 246, 0.55);
+  stroke-width: 1.5;
+}
+
+.pv-plate--hot {
+  fill: rgba(255, 61, 139, 0.85);
+  stroke: var(--peach);
+}
+
+@keyframes pv-dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+@keyframes pv-bob {
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pv-eq {
+  50% {
+    transform: scaleY(0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pv-link,
+  .pv-float,
+  .pv-flow,
+  .pv-bar {
+    animation: none;
+  }
+}

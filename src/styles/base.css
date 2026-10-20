@@ -1,0 +1,221 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  /* keeps the layout from shifting when scrolling is locked behind a dialog */
+  scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--text-on-paper);
+  background: var(--paper);
+  position: relative; /* scroll offsets in Motion's useScroll need a positioned container */
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+}
+
+::selection {
+  background: var(--pink);
+  color: var(--white);
+}
+
+/* Keyboard focus: always visible, never colour-only */
+:focus-visible {
+  outline: 3px solid var(--magenta);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.on-ink :focus-visible,
+.on-heat :focus-visible {
+  outline-color: var(--white);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  background: var(--ink);
+  color: var(--white);
+  border-radius: var(--radius-pill);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* ─── Shared building blocks ─── */
+
+.container {
+  position: relative;
+  z-index: 2; /* sits above the fixed WebGL layer (z-index: 1) */
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  position: relative;
+  padding-block: var(--section-pad);
+  scroll-margin-top: 0;
+}
+
+.on-paper {
+  background: var(--paper);
+  color: var(--text-on-paper);
+}
+
+.on-ink {
+  background: var(--ink);
+  color: var(--text-on-ink);
+}
+
+.on-heat {
+  background:
+    radial-gradient(120% 90% at 85% 0%, rgba(255, 61, 139, 0.9), transparent 60%),
+    /* kept translucent so small ink text stays above 4.5:1 even over the magenta corner */
+    radial-gradient(100% 90% at 0% 100%, rgba(194, 31, 216, 0.5), transparent 65%),
+    var(--orange);
+  color: var(--ink);
+}
+
+/* Faint dot grid, a nod to LED / dot-matrix displays */
+.dot-grid {
+  background-image: radial-gradient(currentColor 1px, transparent 1.5px);
+  background-size: 28px 28px;
+}
+
+.eyebrow {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.84;
+}
+
+/* Pills — used for navigation and calls to action */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 1.05rem;
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    background-color 0.25s var(--ease-out),
+    color 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.pill:hover {
+  background: var(--ink);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+.pill--solid {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.pill--solid:hover {
+  background: var(--orange);
+  color: var(--ink);
+}
+
+.pill .arrow {
+  transition: transform 0.25s var(--ease-out);
+}
+
+.pill:hover .arrow {
+  transform: translate(2px, -2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -113,5 +113,4 @@ I'm particularly interested in how AI can become a native part of software archi
 
 ## 📫 Connect with me
 
-[LinkedIn](YOUR_LINKEDIN_URL)
-![SAHAR'S WEBSITE](https://saharrefaei.uk/)
+[LinkedIn](https://www.linkedin.com/in/sahar-refaei-585830214) · [Website](https://saharrefaei.uk/)

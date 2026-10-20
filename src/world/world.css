@@ -1,0 +1,167 @@
+.world-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: var(--ink);
+  animation: world-in 1s var(--ease-out) both;
+}
+
+.world-layer canvas {
+  display: block;
+  /* vertical swipes must keep scrolling the page; taps still reach the 3D photo frames */
+  touch-action: pan-y;
+}
+
+@keyframes world-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The page itself only supplies scroll length: tall, empty sections that give the camera its track. */
+.journey-section {
+  height: calc(var(--vh) * 1vh);
+  height: calc(var(--vh) * 1svh);
+  pointer-events: none;
+}
+
+/* ── loader shown until the world has parsed its typeface ── */
+.world-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  align-content: end;
+  gap: 1.2rem;
+  padding: var(--gutter);
+  padding-bottom: clamp(2rem, 8vh, 5rem);
+  color: var(--ink);
+  background:
+    radial-gradient(circle, rgba(20, 8, 15, 0.16) 1.2px, transparent 1.7px) 0 0 / 28px 28px,
+    linear-gradient(180deg, var(--paper) 0%, #e9d9d0 34%, #f4a785 66%, var(--orange) 100%);
+  transition: opacity 0.9s var(--ease-out);
+}
+
+.world-loader[data-done='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.world-loader__name {
+  font-size: min(25vw, 30vh);
+  line-height: 0.8;
+  letter-spacing: -0.035em;
+}
+
+@media (min-width: 900px) {
+  .world-loader__name {
+    font-size: min(17.4vw, 16.2rem, 42vh);
+  }
+  .world-loader__name span {
+    margin-right: 0.2em;
+  }
+}
+
+/* ── scroll hint + progress rail ── */
+.world-hint {
+  position: fixed;
+  right: clamp(3rem, 6vw, 5rem);
+  bottom: clamp(1rem, 4vh, 2rem);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease-out);
+}
+
+.world-hint[data-hidden='true'] {
+  opacity: 0;
+}
+
+.world-hint__arrow {
+  font-size: 1.1rem;
+  animation: hint-bob 1.6s ease-in-out infinite;
+}
+
+@keyframes hint-bob {
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+.world-rail {
+  position: fixed;
+  top: 50%;
+  right: clamp(0.5rem, 1.6vw, 1.4rem);
+  z-index: 5;
+  width: 14px;
+  height: min(46vh, 22rem);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.world-rail__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  width: 2px;
+  background: rgba(20, 8, 15, 0.28);
+}
+
+.world-rail__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--orange);
+  transform: scaleY(var(--p, 0));
+  transform-origin: top;
+}
+
+.world-rail__tick {
+  position: absolute;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 0 2px rgba(20, 8, 15, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .world-hint__arrow {
+    animation: none;
+  }
+}
+
+@media (max-width: 1099px) {
+  .world-hint {
+    right: 8rem;
+  }
+}
+
+@media (max-width: 767px) {
+  /* keep the hint clear of the hero buttons */
+  .world-hint {
+    top: 4.4rem;
+    right: 2.6rem;
+    bottom: auto;
+  }
+}
+
+/* Screen-space panels (see Panel in ui3d.tsx) live above the canvas and never block it. */
+.world-dom {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}

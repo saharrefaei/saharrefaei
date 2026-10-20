@@ -1,0 +1,42 @@
+.mask-line {
+  display: block;
+  overflow: hidden;
+  /* room for descenders and the tight display line-height */
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+
+.mask-line__inner {
+  display: block;
+  will-change: transform;
+}
+
+.scroll-band {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  padding-block: clamp(1.5rem, 4vw, 3rem);
+  user-select: none;
+}
+
+.scroll-band__row {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  font-size: clamp(4.5rem, 15vw, 14rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* ghost row: a tonal fill instead of an outline, which would expose the font's overlapping contours */
+  color: rgba(20, 8, 15, 0.13);
+  will-change: transform;
+}
+
+.scroll-band__row::before {
+  content: attr(data-text);
+}
+
+.scroll-band__row--solid {
+  color: var(--ink);
+}

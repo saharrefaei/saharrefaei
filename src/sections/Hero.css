@@ -1,0 +1,228 @@
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100svh;
+  padding-top: calc(var(--header-h) + 1rem);
+  overflow: clip;
+  color: var(--ink);
+  background-color: var(--paper);
+  /* warm silver at the top melting into hot orange at the horizon */
+  background-image:
+    radial-gradient(circle, rgba(20, 8, 15, 0.16) 1.2px, transparent 1.7px),
+    linear-gradient(180deg, var(--paper) 0%, #e9d9d0 34%, #f4a785 66%, var(--orange) 100%);
+  background-size:
+    28px 28px,
+    100% 100%;
+}
+
+.hero__inner {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(1.5rem, 4vh, 3rem);
+  padding-bottom: clamp(1.5rem, 4vh, 2.5rem);
+}
+
+.hero__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: clamp(1rem, 4vh, 3rem);
+}
+
+/* ─── The name ─── */
+
+.hero__name {
+  font-size: min(30vw, 30vh);
+  line-height: 0.8;
+  letter-spacing: -0.035em;
+  margin-top: auto;
+}
+
+/* Wide screens: the name runs as a single line across the full width. */
+@media (min-width: 900px) {
+  .hero__name {
+    display: flex;
+    gap: 0.2em;
+    /* 16.2rem caps the line to the 1500px container on very wide screens */
+    font-size: min(17.4vw, 16.2rem, 42vh);
+  }
+}
+
+.hero__line {
+  display: flex;
+  padding-block: 0.1em;
+  margin-block: -0.1em;
+}
+
+.hero__letter-clip {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.1em;
+  margin-block: -0.1em;
+}
+
+.hero__letter-rise {
+  display: block;
+  animation: hero-letter-rise 1.15s var(--ease-out) both;
+}
+
+.hero__letter {
+  display: block;
+  color: color-mix(in srgb, var(--pink) calc(var(--p, 0) * 100%), var(--ink));
+  transform: translateY(calc(var(--p, 0) * -0.06em)) skewX(calc(var(--p, 0) * -9deg));
+  transition:
+    transform 0.3s var(--ease-out),
+    color 0.3s var(--ease-out);
+}
+
+@keyframes hero-letter-rise {
+  from {
+    transform: translateY(105%) rotate(6deg);
+  }
+}
+
+/* ─── Lower row ─── */
+
+.hero__lower {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  flex-wrap: wrap;
+}
+
+.hero__copy {
+  max-width: 34rem;
+}
+
+.hero__role {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 0.9rem + 1vw, 1.65rem);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.hero__intro {
+  margin-top: 0.6rem;
+  font-size: var(--fs-lead);
+  line-height: 1.3;
+  font-weight: 500;
+  max-width: 28em;
+  /* fades in after the letters have landed */
+  animation: hero-fade 1s var(--ease-out) 1s both;
+}
+
+.hero__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  animation: hero-fade 1s var(--ease-out) 1.15s both;
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.hero__ticker {
+  position: relative;
+  z-index: 2;
+  padding-block: 1rem 1.25rem;
+  border-top: 1px solid rgba(20, 8, 15, 0.2);
+}
+
+/* ─── CSS fallback orbs ─── */
+
+.hero__fallback {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 1s var(--ease-out);
+}
+
+:root[data-scene='ready'] .hero__fallback {
+  opacity: 0;
+}
+
+.hero__orb {
+  position: absolute;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95) 0, rgba(255, 255, 255, 0) 24%),
+    radial-gradient(circle at 50% 50%, var(--c1), var(--c2));
+  box-shadow: inset -0.6rem -0.9rem 2.4rem rgba(20, 8, 15, 0.28);
+  animation: hero-orb-float 9s ease-in-out infinite;
+}
+
+.hero__orb--a {
+  --c1: var(--pink);
+  --c2: var(--orange);
+  top: 14%;
+  right: 14%;
+  width: clamp(9rem, 26vw, 24rem);
+  aspect-ratio: 1;
+}
+
+.hero__orb--b {
+  --c1: var(--ice);
+  --c2: #7fb6ff;
+  top: 12%;
+  right: 42%;
+  width: clamp(2.5rem, 7vw, 6rem);
+  aspect-ratio: 1;
+  animation-delay: -3s;
+}
+
+.hero__orb--c {
+  --c1: var(--magenta);
+  --c2: var(--pink);
+  top: 48%;
+  right: 8%;
+  width: clamp(3rem, 8vw, 7rem);
+  aspect-ratio: 1;
+  animation-delay: -5s;
+}
+
+.hero__orb--d {
+  --c1: var(--peach);
+  --c2: var(--orange);
+  top: 30%;
+  right: 3%;
+  width: clamp(1.5rem, 3vw, 2.4rem);
+  aspect-ratio: 1;
+  animation-delay: -7s;
+}
+
+@keyframes hero-orb-float {
+  50% {
+    transform: translateY(-1.1rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .hero__meta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .hero__orb--a {
+    top: 18%;
+    right: 50%;
+    transform: translateX(50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__letter-rise,
+  .hero__intro,
+  .hero__links,
+  .hero__orb {
+    animation: none;
+  }
+}

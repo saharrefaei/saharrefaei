@@ -1,0 +1,152 @@
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Lightbox } from '../components/Lightbox'
+import { Boundary } from './boundaries'
+import { profile } from '../content/profile'
+import { detail } from '../detail/detailStore'
+import { scrollYForKeyframe } from './journey'
+import { detailKeyframe, SECTION_ORDER, sectionOwned, type SectionId } from './path'
+import './world.css'
+
+const World = lazy(() => import('./World'))
+
+/** Scroll length of each section, in viewport heights. Each owned camera stop gets its own stretch of road. */
+const SECTION_VH: Record<SectionId, number> = {
+  top: 150,
+  about: 125,
+  experience: sectionOwned.experience * 105,
+  projects: sectionOwned.projects * 110,
+  events: sectionOwned.events * 125,
+  contact: 100,
+}
+
+function WorldLoader({ done }: { done: boolean }) {
+  return (
+    <div className="world-loader" data-done={done} aria-hidden="true">
+      <p className="eyebrow">Entering the portfolio…</p>
+      <p className="display world-loader__name">
+        <span>SAHAR</span>
+        <span>REFAEI</span>
+      </p>
+    </div>
+  )
+}
+
+/** "Scroll to travel" hint and a thin progress rail with a tick per section. Both are purely visual. */
+function WorldChrome() {
+  const hint = useRef<HTMLDivElement>(null)
+  const rail = useRef<HTMLDivElement>(null)
+  const ticks = useRef<(HTMLSpanElement | null)[]>([])
+
+  useEffect(() => {
+    const place = () => {
+      const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1)
+      SECTION_ORDER.forEach((id, i) => {
+        const el = document.getElementById(id)
+        const tick = ticks.current[i]
+        if (el && tick) tick.style.top = `${Math.min(100, (el.offsetTop / max) * 100)}%`
+      })
+    }
+    // At most one DOM write per frame, and only when the value actually changed.
+    let frame = 0
+    let hidden = false
+    let lastProgress = -1
+    const update = () => {
+      frame = 0
+      const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1)
+      const progress = Math.round(Math.min(1, Math.max(0, window.scrollY / max)) * 1000) / 1000
+      if (progress !== lastProgress) {
+        lastProgress = progress
+        rail.current?.style.setProperty('--p', String(progress))
+      }
+      const nowHidden = window.scrollY > 40
+      if (nowHidden !== hidden) {
+        hidden = nowHidden
+        hint.current?.setAttribute('data-hidden', String(nowHidden))
+      }
+    }
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    place()
+    update()
+    const observer = new ResizeObserver(place)
+    observer.observe(document.body)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+      window.removeEventListener('scroll', onScroll)
+    }
+  }, [])
+
+  return (
+    <>
+      <div className="world-hint" ref={hint} aria-hidden="true">
+        <span>Scroll to travel</span>
+        <span className="world-hint__arrow">↓</span>
+      </div>
+      <div className="world-rail" ref={rail} aria-hidden="true">
+        <span className="world-rail__line">
+          <span className="world-rail__fill" />
+        </span>
+        {SECTION_ORDER.map((id, i) => (
+          <span
+            key={id}
+            className="world-rail__tick"
+            ref={(node) => {
+              ticks.current[i] = node
+            }}
+          />
+        ))}
+      </div>
+    </>
+  )
+}
+
+/**
+ * The immersive mode. One fixed WebGL world holds *all* of the content; the page
+ * only provides scroll length (empty, id-bearing sections that double as anchors,
+ * so nav links, the back button and keyboard scrolling all behave normally).
+ */
+export function WorldExperience({ onFail }: { onFail: () => void }) {
+  const [ready, setReady] = useState(false)
+  const onReady = useCallback(() => setReady(true), [])
+
+  // The sections only exist once this lazily loaded chunk renders, after the browser has already
+  // tried (and failed) to honour a #hash on load. Jump to it now so deep links like /#projects work.
+  useLayoutEffect(() => {
+    // A direct link to a project or job opens its detail view over the world, with the camera parked at
+    // that item's stop. A reload keeps the exact scroll position the entry was opened from.
+    const deepLink = detail.takeInitial()
+    if (deepLink) {
+      window.scrollTo({ top: deepLink.y ?? scrollYForKeyframe(detailKeyframe(deepLink.ref)), behavior: 'instant' })
+      return
+    }
+    const id = window.location.hash.slice(1)
+    if (id) document.getElementById(id)?.scrollIntoView({ behavior: 'instant' })
+  }, [])
+
+  return (
+    <>
+      <h1 className="sr-only">
+        {profile.name}: {profile.role}, {profile.focus}
+      </h1>
+
+      <Boundary onError={onFail}>
+        <Suspense fallback={null}>
+          <World onReady={onReady} onFail={onFail} />
+        </Suspense>
+      </Boundary>
+      <WorldLoader done={ready} />
+      <WorldChrome />
+
+      <div className="journey-track">
+        {SECTION_ORDER.map((id) => (
+          <div key={id} id={id} className="journey-section" data-journey-section={id} style={{ '--vh': SECTION_VH[id] } as React.CSSProperties} />
+        ))}
+      </div>
+
+      <Lightbox />
+    </>
+  )
+}

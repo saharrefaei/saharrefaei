@@ -1,0 +1,18 @@
+.scene-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1; /* above section backgrounds, below .container content (z-index: 2) */
+  pointer-events: none;
+  animation: scene-in 1.2s var(--ease-out) both;
+}
+
+.scene-layer canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@keyframes scene-in {
+  from {
+    opacity: 0;
+  }
+}

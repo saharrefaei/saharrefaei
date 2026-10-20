@@ -1,0 +1,48 @@
+/*
+ * Design tokens — the single source of truth for colour, type and spacing.
+ * Palette: warm "paper" and deep "ink" as the neutral pair, with a hot
+ * orange → pink → magenta accent run used for light, glow and emphasis.
+ */
+:root {
+  /* Neutrals */
+  --ink: #14080f;
+  --ink-2: #24121c;
+  --ink-3: #3a2230;
+  --paper: #ece7e3;
+  --paper-2: #ddd5d0;
+  --white: #fffaf6;
+
+  /* Accent run */
+  --orange: #ff5a1f;
+  --pink: #ff3d8b;
+  --magenta: #c21fd8;
+  --peach: #ffb08a;
+  --ice: #9fe8ff;
+
+  /* Text colours that keep AA contrast on their intended surface */
+  --text-on-paper: #14080f;
+  --text-on-paper-muted: #5b4852;
+  --text-on-ink: #fffaf6;
+  --text-on-ink-muted: #cdbac4;
+
+  --gradient-heat: linear-gradient(120deg, var(--orange), var(--pink) 55%, var(--magenta));
+
+  /* Type */
+  --font-display: 'Bricolage Grotesque Variable', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Instrument Sans Variable', 'Helvetica Neue', Arial, sans-serif;
+
+  --fs-label: 0.75rem;
+  --fs-body: clamp(1rem, 0.94rem + 0.25vw, 1.125rem);
+  --fs-lead: clamp(1.2rem, 1rem + 0.9vw, 1.75rem);
+  --fs-title: clamp(2rem, 1.2rem + 3.4vw, 4.25rem);
+  --fs-section: clamp(3.4rem, 1rem + 11.5vw, 10.5rem);
+
+  /* Layout */
+  --gutter: clamp(1.25rem, 4.5vw, 4rem);
+  --max-width: 1500px;
+  --section-pad: clamp(5rem, 14vh, 11rem);
+  --radius-pill: 999px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --header-h: 4.5rem;
+}
