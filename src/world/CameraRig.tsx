@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Color, MathUtils, Vector3, type Fog, type PerspectiveCamera, type PointLight } from 'three'
 import { sceneInput } from '../lib/sceneInput'
-import { easeK, journey } from './journey'
+import { easeK, journey, kFromY } from './journey'
 import { useLayout } from './layoutCore'
 import { curveT, keyframes, lastKf, lookCurve, posCurve } from './path'
 
@@ -13,18 +13,18 @@ const right = new Vector3()
 const up = new Vector3()
 
 /**
- * THE CAMERA. A PerspectiveCamera that travels along a spline through the
- * world, driven by scroll progress:
+ * THE CAMERA. A PerspectiveCamera that travels along a spline through the world,
+ * driven by scroll. Everything happens inside the render loop, so the camera is
+ * always in step with the frame being drawn:
  *
- *   scroll → keyframe index k  →  smoothed (damped)  →  dwell/travel easing
- *          → spline parameter t → position + look-at target
+ *   window.scrollY (read this frame) → frame-rate-independent smoothing in scroll space
+ *     → keyframe index → stop easing → spline parameter t → position + look-at target
  *
  * A small pointer parallax is layered on top, so the world responds to the
  * mouse without ever fighting the scroll.
  */
 export function CameraRig() {
   const layout = useLayout()
-  const smoothK = useRef(-1)
   const px = useRef(0)
   const py = useRef(0)
 
@@ -36,10 +36,18 @@ export function CameraRig() {
       camera.updateProjectionMatrix()
     }
 
-    // first frame: land exactly where the scroll position says (deep links, reloads)
-    if (smoothK.current < 0) smoothK.current = journey.k
-    smoothK.current = damp(smoothK.current, journey.k, 4.2, dt)
-    journey.kE = easeK(smoothK.current)
+    // Smoothing happens in scroll space: exponential (so it is frame-rate independent) and
+    // memoryless (so reversing direction responds instantly, with no momentum to unwind).
+    // The rate rises with the gap, so a quick flick is tracked tightly instead of lagging
+    // behind, while gentle scrolling stays silky.
+    const y = window.scrollY
+    const gap = y - journey.ySmooth
+    const rate = 15 + Math.min(30, (Math.abs(gap) / (window.innerHeight * 0.5)) * 30)
+    journey.ySmooth += gap * (1 - Math.exp(-rate * dt))
+    if (Math.abs(y - journey.ySmooth) < 0.05) journey.ySmooth = y
+
+    journey.k = kFromY(y)
+    journey.kE = easeK(kFromY(journey.ySmooth))
 
     const t = curveT(journey.kE)
     posCurve.getPoint(t, pos)

@@ -108,12 +108,11 @@ function Spine() {
   const first = sectionStart.experience
   const last = first + experience.length - 1
   const near = useNearKf((first + last) / 2, experience.length / 2 + 1.4)
-  if (!near) return null
   const z0 = keyframes[first].pos.z - 9
   const z1 = keyframes[last].pos.z - 9
   const length = z0 - z1
   return (
-    <group position={[0, -2.1, 0]}>
+    <group position={[0, -2.1, 0]} visible={near}>
       <mesh position={[0, 0, (z0 + z1) / 2]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.035, 0.035, length, 8]} />
         <meshBasicMaterial color="#ff5a1f" />

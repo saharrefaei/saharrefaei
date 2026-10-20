@@ -2,7 +2,6 @@ import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useSta
 import { Lightbox } from '../components/Lightbox'
 import { Boundary } from './boundaries'
 import { profile } from '../content/profile'
-import { journey } from './journey'
 import { SECTION_ORDER, sectionOwned, type SectionId } from './path'
 import './world.css'
 
@@ -10,12 +9,12 @@ const World = lazy(() => import('./World'))
 
 /** Scroll length of each section, in viewport heights. Each owned camera stop gets its own stretch of road. */
 const SECTION_VH: Record<SectionId, number> = {
-  top: 130,
-  about: 110,
-  experience: sectionOwned.experience * 85,
-  projects: sectionOwned.projects * 90,
-  interests: sectionOwned.interests * 85,
-  events: sectionOwned.events * 100,
+  top: 150,
+  about: 125,
+  experience: sectionOwned.experience * 105,
+  projects: sectionOwned.projects * 110,
+  interests: sectionOwned.interests * 105,
+  events: sectionOwned.events * 125,
   contact: 100,
 }
 
@@ -46,16 +45,34 @@ function WorldChrome() {
         if (el && tick) tick.style.top = `${Math.min(100, (el.offsetTop / max) * 100)}%`
       })
     }
+    // At most one DOM write per frame, and only when the value actually changed.
+    let frame = 0
+    let hidden = false
+    let lastProgress = -1
+    const update = () => {
+      frame = 0
+      const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1)
+      const progress = Math.round(Math.min(1, Math.max(0, window.scrollY / max)) * 1000) / 1000
+      if (progress !== lastProgress) {
+        lastProgress = progress
+        rail.current?.style.setProperty('--p', String(progress))
+      }
+      const nowHidden = window.scrollY > 40
+      if (nowHidden !== hidden) {
+        hidden = nowHidden
+        hint.current?.setAttribute('data-hidden', String(nowHidden))
+      }
+    }
     const onScroll = () => {
-      hint.current?.setAttribute('data-hidden', String(window.scrollY > 40))
-      rail.current?.style.setProperty('--p', String(journey.progress))
+      if (!frame) frame = requestAnimationFrame(update)
     }
     place()
-    onScroll()
+    update()
     const observer = new ResizeObserver(place)
     observer.observe(document.body)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
+      cancelAnimationFrame(frame)
       observer.disconnect()
       window.removeEventListener('scroll', onScroll)
     }

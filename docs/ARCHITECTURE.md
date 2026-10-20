@@ -25,8 +25,10 @@ that scene.
 
 ```
 native scroll (wheel / trackpad / touch / keyboard / anchors)
-   → journey.k           float "keyframe index" derived from where you are in the page
-   → damped + eased      smooth interpolation, with a dwell at each stop so copy is readable
+   → window.scrollY      read inside the render loop, in the same frame it is drawn
+   → smoothed in scroll  frame-rate-independent exponential smoothing (no momentum, instant reversal)
+     space
+   → keyframe index      with a continuous ease that slows toward each stop but never freezes
    → CatmullRomCurve3    camera position and look-at target on two splines through the keyframes
    → camera              + a small pointer parallax
 ```
@@ -44,12 +46,13 @@ native scroll (wheel / trackpad / touch / keyboard / anchors)
   * **3D lettering**: extruded `Text3D` titles (SAHAR REFAEI, ABOUT, company names, HACKATHON, …).
   * **3D objects**: the chrome orb rig, one sculpture per project (`ProjectModels.tsx`), floating photo frames,
     a dot-matrix `HELLO` made of instanced spheres.
-  * **Readable copy**: real DOM in `<Html transform>` panels (`ui3d.tsx`). They share the WebGL camera's matrices,
-    so they get true perspective and parallax, yet stay selectable, crawlable and accessible.
+  * **Readable copy**: real DOM panels (`Panel` in `ui3d.tsx`). Each frame a panel's anchor point is projected
+    through the WebGL camera, so it sits at a real place in the world, scales with distance and moves with parallax,
+    yet stays selectable, crawlable and accessible. See *Text sharpness* below for why this is not a CSS 3D transform.
 * **Depth cues** (`Backdrop.tsx`): ~3k drifting dots through the whole volume, hoops the camera flies through
   between stops, chrome shards at varying distances, and fog + background colour that change per section.
-* **Culling**: anchors only mount while the camera is within a few keyframes (`useNearKf`), so only the nearby
-  part of the world is ever alive.
+* **Culling without churn**: every anchor stays mounted and is only *shown* while the camera is within a few
+  keyframes (`useNearKf`). Nothing is created, compiled or uploaded while the visitor scrolls (see *Scroll feel*).
 
 ### Two renderings of the same content
 
@@ -123,12 +126,45 @@ is trapped and restored.
 * Touch: the canvas is `touch-action: pan-y`, so vertical swipes scroll the page (and fly the camera) while taps
   still reach the photo frames.
 
+## Scroll feel (smoothness)
+
+Measured root causes of the earlier "laggy / choppy" feel, and what was done:
+
+| Cause (measured) | Fix |
+| --- | --- |
+| Dead zones: the stop-easing froze the camera for the first ~25% of every leg, then it surged. A wheel notch could do nothing for ~400 ms (headed Chrome, 120 Hz) | `easeK` is continuous: speed goes from 0.45× at a stop to ~1.5× mid-leg and never reaches zero; legs are ~20% longer so each notch moves the camera less |
+| ~240 ms of smoothing on top of Chrome's own scroll animation | smoothing now happens in **scroll space**, is exponential (frame-rate independent, memoryless, so reversing direction is instant), and its rate rises with the gap so a flick is tracked tightly. A notch is ~90% done after ~1 frame, settled in ~250 ms (was ~370 ms with a slow start) |
+| Scroll handled in an event, camera moved in another callback | `window.scrollY` is read inside `useFrame`, so the camera is always in step with the frame being drawn. No scroll listener does work any more |
+| One-off hitches (shader link, geometry and texture upload, React mounts) when each station first came into view | every station is mounted at load and the whole scene is **pre-compiled** (`WarmUp`) behind the loader; afterwards only `visible` toggles. Event photos load lazily, decode off the main thread (`ImageBitmap`) and are uploaded **one texture per frame** (drei's `useTexture` uploaded all of them at once, ~90 ms) |
+| Full-screen `mix-blend-mode` on the progress rail forced blending over the canvas every frame | removed |
+| Chrome DOM writes on every scroll event | the rail/hint update at most once per frame and only when their value changed |
+
+No React state changes while scrolling except the rare "near / far" flips. GPU cost at 2x density is ~3.5-4.5 ms/frame
+(`readPixels`-synced) on an Apple M5 Pro, 100-200k triangles and 14-73 draw calls.
+
+## Text sharpness
+
+Measured with an objective test: the same string is rendered flat (no transforms) and inside the scene at the same
+on-screen size on a 2x display, and Laplacian edge energy is compared.
+
+* **Cause:** drei's `<Html transform>` puts panels in a `matrix3d` + perspective layer. Chrome rasterises that text and then
+  *resamples* it with a fractional scale and offset, which softened it to **76-94%** of flat-text sharpness (varying with
+  position). The WebGL canvas was also capped at 1.5x on 2x displays, which softens 3D edges.
+* **Fix:** panels are projected into screen space and positioned with `translate3d(x, y) scale(s)`, with x/y snapped to
+  whole **device** pixels and `s` quantised, so the browser rasterises the text natively at its final size.
+  Result: **102-112%** of the flat reference, at rest and while the camera moves. The canvas now renders at the display's
+  native density (max 2x); `DprGovernor` only steps down after ~2 s of sustained slowness, never oscillates and never goes
+  below 1.5x unless the frame rate is genuinely poor.
+* Panels trade the perspective *skew* of CSS 3D for crispness; they still scale and move with the camera.
+
 ## Performance
 
-* Lazy-loaded 3D chunk; DPR capped at 1.5; phones/touch render fewer polygons, particles and shards.
-* Typeface preloaded with the world; event photos are fetched only when the camera is a few stops away.
-* Dev-measured (headless Chrome, Apple M5 Pro, production build): 60 fps idle and while scrolling at
-  1440×860 @2×; layout shift 0.0002. **Not measured on real low-end phones.**
+* Lazy-loaded 3D chunk; phones/touch render fewer polygons, particles and shards.
+* Headed Chrome at 120 Hz (Apple M5 Pro, production build, 2x display): 113-120 fps through slow glides, mouse notches, fast
+  flicks and rapid direction reversals; across two full passes (one cold) only 3 frames exceeded 24 ms and none was a
+  long animation frame. Layout shift 0.0003. **Not measured on real low-end phones.**
+* Profile it yourself: open the site with `?debug` (or use `npm run dev`) to expose `window.__journey` (camera position, smoothed
+  scroll) and `window.__gl` (the renderer: `info.render`, `getPixelRatio()`).
 
 ## Content rules
 

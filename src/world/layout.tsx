@@ -1,7 +1,7 @@
 import { Suspense, useMemo, type ReactNode } from 'react'
 import { useThree } from '@react-three/fiber'
 import { Vector3 } from 'three'
-import { LayoutContext, MetricsContext, layoutFor, useLayout, useNearKf } from './layoutCore'
+import { LayoutContext, MetricsContext, NearContext, layoutFor, useLayout, useNearKf } from './layoutCore'
 import { Boundary } from './boundaries'
 import { frames } from './path'
 
@@ -10,7 +10,8 @@ import { frames } from './path'
  * keyframe's *camera frame*: nx / ny are -1..1 across the visible width / height at
  * distance d in front of the camera. The same layout therefore works on a wide
  * monitor and on a phone, while the result is a fixed place in world space that
- * the camera really flies past.
+ * the camera really flies past. Every Anchor stays mounted; it is only shown while the camera is
+ * near it (see useNearKf).
  */
 
 export function LayoutProvider({ lowPower, children }: { lowPower: boolean; children: ReactNode }) {
@@ -55,15 +56,17 @@ export function Anchor({ kf, desktop, narrow, range = 1.8, children }: AnchorPro
     }
   }, [frame, d, nx, ny, layout.fov, layout.aspect])
 
-  if (!near) return null
+  // Always mounted, only shown when near: nothing is created or compiled while the visitor scrolls.
   return (
     <MetricsContext.Provider value={metrics}>
-      <group position={position} quaternion={frame.quaternion}>
-        {/* own boundary: a texture or font still loading must never blank the rest of the world */}
-        <Boundary>
-          <Suspense fallback={null}>{children}</Suspense>
-        </Boundary>
-      </group>
+      <NearContext.Provider value={near}>
+        <group visible={near} position={position} quaternion={frame.quaternion}>
+          {/* own boundary: a texture or font still loading must never blank the rest of the world */}
+          <Boundary>
+            <Suspense fallback={null}>{children}</Suspense>
+          </Boundary>
+        </group>
+      </NearContext.Provider>
     </MetricsContext.Provider>
   )
 }

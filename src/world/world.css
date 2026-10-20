@@ -106,7 +106,6 @@
   height: min(46vh, 22rem);
   transform: translateY(-50%);
   pointer-events: none;
-  mix-blend-mode: difference;
 }
 
 .world-rail__line {
@@ -115,13 +114,13 @@
   bottom: 0;
   left: 6px;
   width: 2px;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(20, 8, 15, 0.28);
 }
 
 .world-rail__fill {
   position: absolute;
   inset: 0;
-  background: #fff;
+  background: var(--orange);
   transform: scaleY(var(--p, 0));
   transform-origin: top;
 }
@@ -133,7 +132,8 @@
   height: 10px;
   margin-top: -5px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--orange);
+  box-shadow: 0 0 0 2px rgba(20, 8, 15, 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -155,4 +155,13 @@
     right: 2.6rem;
     bottom: auto;
   }
+}
+
+/* Screen-space panels (see Panel in ui3d.tsx) live above the canvas and never block it. */
+.world-dom {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
 }

@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { useFrame } from '@react-three/fiber'
-import { useTexture } from '@react-three/drei'
-import { Color, MathUtils, Object3D, type Group, type InstancedMesh, type Texture } from 'three'
+import { useFrame, useThree } from '@react-three/fiber'
+import { CanvasTexture, Color, ImageBitmapLoader, MathUtils, Object3D, SRGBColorSpace, Texture, type Group, type InstancedMesh } from 'three'
 import { events, type CommunityEvent, type EventPhoto } from '../../content/events'
 import { interests, type Interest, type InterestGroup } from '../../content/interests'
 import { emailAddress, links, profile } from '../../content/profile'
@@ -103,23 +102,108 @@ export function InterestsStation() {
 
 /* ───────────────────────── Events: floating photo frames you can fly past and open ───────────────────────── */
 
+/**
+ * Photo loading is staged so it never costs a visible frame:
+ *   1. the image is fetched AND decoded off the main thread (ImageBitmap),
+ *   2. the GPU upload (several ms for a big photo) happens one texture per frame,
+ *   3. only then is the frame handed the finished texture.
+ * (drei's useTexture uploads every texture synchronously the moment it resolves.)
+ */
+type PendingUpload = { texture: Texture; resolve: (texture: Texture) => void }
+const uploadQueue: PendingUpload[] = []
+const photoCache = new Map<string, Promise<Texture>>()
+
+function loadPhoto(src: string): Promise<Texture> {
+  const cached = photoCache.get(src)
+  if (cached) return cached
+  const promise = new Promise<Texture>((resolve, reject) => {
+    const loader = new ImageBitmapLoader()
+    loader.setOptions({ imageOrientation: 'flipY', premultiplyAlpha: 'none' })
+    loader.load(
+      src,
+      (bitmap) => {
+        const texture = new Texture(bitmap)
+        texture.flipY = false // the bitmap was already flipped while decoding
+        texture.colorSpace = SRGBColorSpace
+        texture.anisotropy = 8
+        texture.needsUpdate = true
+        uploadQueue.push({ texture, resolve })
+      },
+      undefined,
+      reject,
+    )
+  })
+  photoCache.set(src, promise)
+  return promise
+}
+
+function usePhotoTexture(src: string): Texture | null {
+  const [texture, setTexture] = useState<Texture | null>(null)
+  useEffect(() => {
+    let alive = true
+    loadPhoto(src).then(
+      (loaded) => alive && setTexture(loaded),
+      () => undefined, // a missing photo just leaves its frame out; the rest of the world is unaffected
+    )
+    return () => {
+      alive = false
+    }
+  }, [src])
+  return texture
+}
+
+function UploadPump() {
+  const gl = useThree((state) => state.gl)
+  useFrame(() => {
+    const next = uploadQueue.shift()
+    if (!next) return
+    gl.initTexture(next.texture)
+    next.resolve(next.texture)
+  })
+  return null
+}
+
+/** The "SAMPLE PHOTO" caption under placeholder frames: drawn once and shared, so it costs no geometry per frame. */
+let sampleLabel: CanvasTexture | null = null
+function getSampleLabel(): CanvasTexture {
+  if (sampleLabel) return sampleLabel
+  const canvas = document.createElement('canvas')
+  canvas.width = 1024
+  canvas.height = 192
+  const ctx = canvas.getContext('2d')!
+  ctx.font = '800 150px "Bricolage Grotesque Variable", "Helvetica Neue", Arial, sans-serif'
+  ctx.fontStretch = 'condensed'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillStyle = '#ff3d8b'
+  ctx.fillText('SAMPLE PHOTO', 512, 100)
+  sampleLabel = new CanvasTexture(canvas)
+  sampleLabel.colorSpace = SRGBColorSpace
+  sampleLabel.anisotropy = 8
+  return sampleLabel
+}
+
 const FRAME_Y = [0.5, -0.4, 0.8, -0.2]
 const FRAME_ROLL = [0.03, -0.04, 0.02, -0.03]
 
-function PhotoFrame({
+function PhotoFrame(props: { event: CommunityEvent; photo: EventPhoto; index: number; narrow: boolean }) {
+  const texture = usePhotoTexture(props.photo.src)
+  return texture ? <LoadedFrame {...props} texture={texture} /> : null
+}
+
+function LoadedFrame({
   event,
   photo,
   index,
   narrow,
+  texture,
 }: {
   event: CommunityEvent
   photo: EventPhoto
   index: number
   narrow: boolean
+  texture: Texture
 }) {
-  const texture = useTexture(photo.src, (loaded) => {
-    ;(loaded as Texture).anisotropy = 8
-  })
   const [hover, setHover] = useState(false)
   const group = useRef<Group>(null)
 
@@ -174,9 +258,10 @@ function PhotoFrame({
         <meshBasicMaterial color="#ff3d8b" transparent opacity={hover ? 0.55 : 0.18} depthWrite={false} />
       </mesh>
       {photo.sample ? (
-        <group position={[0, -(h / 2 + 0.45), 0.05]}>
-          <Title3D text="SAMPLE PHOTO" size={0.26} look="heat" depth={0.06} />
-        </group>
+        <mesh position={[0, -(h / 2 + 0.42), 0.05]}>
+          <planeGeometry args={[2.6, 0.49]} />
+          <meshBasicMaterial map={getSampleLabel()} transparent toneMapped={false} />
+        </mesh>
       ) : null}
     </group>
   )
@@ -239,7 +324,7 @@ function EventPanel({ event }: { event: CommunityEvent }) {
   )
 }
 
-function EventStop({ event, kf, index }: { event: CommunityEvent; kf: number; index: number }) {
+function EventStop({ event, kf, index, galleryLoaded }: { event: CommunityEvent; kf: number; index: number; galleryLoaded: boolean }) {
   const { narrow } = useLayout()
   return (
     <>
@@ -251,9 +336,9 @@ function EventStop({ event, kf, index }: { event: CommunityEvent; kf: number; in
       </Anchor>
       {/* d = 0: the group sits exactly at the stop's camera, so photos are placed in plain camera-frame coordinates */}
       <Anchor kf={kf} desktop={[0, 0, 0]} narrow={[0, 0, 0]} range={2.3}>
-        {event.photos.map((photo, i) => (
-          <PhotoFrame key={photo.src} event={event} photo={photo} index={i} narrow={narrow} />
-        ))}
+        {galleryLoaded
+          ? event.photos.map((photo, i) => <PhotoFrame key={photo.src} event={event} photo={photo} index={i} narrow={narrow} />)
+          : null}
       </Anchor>
       {index === 0 ? (
         <Anchor kf={kf} desktop={[0, 0.1, 34]} narrow={[0, 0.2, 34]} range={2.4}>
@@ -264,23 +349,27 @@ function EventStop({ event, kf, index }: { event: CommunityEvent; kf: number; in
   )
 }
 
-/** Fetch event photos shortly before the camera gets there instead of at page load. */
-function PreloadPhotos() {
-  const first = sectionStart.events
-  const near = useNearKf(first, 6.5)
-  useEffect(() => {
-    if (near) useTexture.preload(events.flatMap((e) => e.photos.map((p) => p.src)))
-  }, [near])
-  return null
+/**
+ * Photos are heavy, so they are built only once the camera is within a few stops of the gallery
+ * (not at page load), and then stay resident. That leaves the textures time to download, decode and
+ * upload to the GPU well before they come into view.
+ */
+function useGalleryLoaded(): boolean {
+  const approaching = useNearKf(sectionStart.events, 6.5, false)
+  const [loaded, setLoaded] = useState(false)
+  // one-way latch (setState during render is the sanctioned way to derive state from a changing value)
+  if (approaching && !loaded) setLoaded(true)
+  return loaded
 }
 
 export function EventsStation() {
   const first = sectionStart.events
+  const galleryLoaded = useGalleryLoaded()
   return (
     <>
-      <PreloadPhotos />
+      <UploadPump />
       {events.map((event, i) => (
-        <EventStop key={event.id} event={event} kf={first + i} index={i} />
+        <EventStop key={event.id} event={event} kf={first + i} index={i} galleryLoaded={galleryLoaded} />
       ))}
     </>
   )

@@ -25,11 +25,24 @@ export function layoutFor(aspect: number, lowPower: boolean): Layout {
 export const MetricsContext = createContext({ visibleW: 10, visibleH: 6 })
 export const useAnchorMetrics = () => useContext(MetricsContext)
 
-/** Mounts children only while the camera is near this keyframe: cheap culling and no off-screen DOM. */
-export function useNearKf(kf: number, range: number): boolean {
-  const [near, setNear] = useState(() => Math.abs(journey.kE - kf) <= range)
+/** Whether the surrounding Anchor is currently near the camera (panels use it to hide their DOM). */
+export const NearContext = createContext(true)
+
+/** The overlay element that screen-space panels are rendered into (set by World). */
+export const domLayer: { el: HTMLElement | null } = { el: null }
+
+/**
+ * True while the camera is within `range` keyframes of `kf`. Content stays built and resident and
+ * is only shown/hidden by this, so approaching a stop never has to create geometry or compile a
+ * shader mid-scroll. While the world warms up (`journey.cull === false`) everything counts as near,
+ * which lets every shader compile and every buffer upload once, behind the loader. Pass
+ * `warmUp = false` for loading decisions that should not fire during that phase.
+ */
+export function useNearKf(kf: number, range: number, warmUp = true): boolean {
+  const [near, setNear] = useState(() => (warmUp ? true : Math.abs(journey.kE - kf) <= range))
   const nearRef = useRef(near)
   useFrame(() => {
+    if (!journey.cull && warmUp) return
     const dist = Math.abs(journey.kE - kf)
     // hysteresis so a stop at the boundary doesn't flicker
     const next = nearRef.current ? dist <= range + 0.25 : dist <= range

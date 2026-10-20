@@ -1,13 +1,13 @@
-import { useLayoutEffect, useRef, type ReactNode, type Ref } from 'react'
+import { useContext, useLayoutEffect, useRef, type ReactNode, type Ref } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
 import { useFrame } from '@react-three/fiber'
-import { Html, Text3D } from '@react-three/drei'
-import { Vector3, type Group, type Mesh, type MeshBasicMaterial } from 'three'
-import { useAnchorMetrics } from './layoutCore'
+import { Text3D } from '@react-three/drei'
+import { Vector3, type Group, type Mesh, type MeshBasicMaterial, type PerspectiveCamera } from 'three'
+import { domLayer, NearContext, useAnchorMetrics } from './layoutCore'
 import type { Theme } from './path'
 import './panel.css'
 
 const scratch = new Vector3()
-const direction = new Vector3()
 const smooth = (t: number) => {
   const c = Math.min(1, Math.max(0, t))
   return c * c * (3 - 2 * c)
@@ -115,39 +115,109 @@ type PanelProps = {
   children: ReactNode
 }
 
+type PanelState = { el: HTMLDivElement | null; root: Root | null; height: number; transform: string; opacity: number; zIndex: string; shown: boolean }
+
+const ndc = new Vector3()
+const viewPos = new Vector3()
+const SCALE_STEPS = 96
+
 /**
- * Real DOM positioned in real 3D space: a drei <Html transform> shares the WebGL
- * camera's matrices, so the panel gets true perspective, foreshortening and
- * parallax while staying selectable, readable by screen readers and clickable.
- * It fades out as the camera sweeps past it or when it is far away, and while
- * invisible it is `visibility: hidden`, which also removes its links from the tab order.
+ * Real DOM positioned by the 3D scene. Each frame the panel's anchor point is projected through
+ * the WebGL camera, so it sits at a true place in the world, scales with distance and moves with
+ * parallax. It stays selectable, clickable and readable by screen readers.
+ *
+ * Why not CSS 3D transforms (drei <Html transform>)? Text inside a matrix3d + perspective layer is
+ * rasterised, then resampled at a fractional scale and offset, which measurably softens it (it
+ * scored 76-100% of flat-text sharpness in testing). Here the transform is only
+ * `translate3d(x, y) scale(s)`, with x/y snapped to whole *device* pixels and s quantised, so the
+ * browser rasterises the text natively at its final size: always crisp, also while the camera moves.
  */
 export function Panel({ px, frac, theme, className, children }: PanelProps) {
   const { visibleW } = useAnchorMetrics()
-  const distanceFactor = (400 * frac * visibleW) / px
+  const near = useContext(NearContext)
   const group = useRef<Group>(null)
-  const node = useRef<HTMLDivElement>(null)
+  const state = useRef<PanelState>({ el: null, root: null, height: 0, transform: '', opacity: -1, zIndex: '', shown: false })
+  const worldWidth = frac * visibleW
 
-  useFrame(({ camera }) => {
-    const g = group.current
-    const el = node.current
-    if (!g || !el) return
-    g.getWorldPosition(scratch).sub(camera.position)
-    camera.getWorldDirection(direction)
-    const depth = scratch.dot(direction)
-    const opacity = smooth((depth - 2.4) / 3) * (1 - smooth((depth - 15) / 8))
-    el.style.opacity = opacity.toFixed(3)
-    el.style.visibility = opacity < 0.03 ? 'hidden' : 'visible'
-    el.style.pointerEvents = opacity > 0.5 ? 'auto' : 'none'
+  useLayoutEffect(() => {
+    const layer = domLayer.el
+    if (!layer) return
+    const el = document.createElement('div')
+    el.className = `wp wp--${theme}${className ? ` ${className}` : ''}`
+    el.style.cssText = `position:absolute;left:0;top:0;width:${px}px;transform-origin:0 0;display:none;`
+    layer.appendChild(el)
+    const root = createRoot(el)
+    const s = state.current
+    Object.assign(s, { el, root, height: 0, transform: '', opacity: -1, zIndex: '', shown: false })
+    const observer = new ResizeObserver(() => {
+      s.height = el.offsetHeight
+    })
+    observer.observe(el)
+    return () => {
+      observer.disconnect()
+      s.el = null
+      s.root = null
+      el.remove()
+      queueMicrotask(() => root.unmount())
+    }
+  }, [px, theme, className])
+
+  useLayoutEffect(() => {
+    state.current.root?.render(children)
   })
 
-  return (
-    <group ref={group}>
-      <Html transform center distanceFactor={distanceFactor} pointerEvents="none" zIndexRange={[20, 0]}>
-        <div ref={node} className={`wp wp--${theme}${className ? ` ${className}` : ''}`} style={{ width: px }}>
-          {children}
-        </div>
-      </Html>
-    </group>
-  )
+  useFrame(({ camera, size }) => {
+    const s = state.current
+    const el = s.el
+    const g = group.current
+    if (!el || !g) return
+
+    const hide = () => {
+      if (s.shown) {
+        el.style.display = 'none'
+        s.shown = false
+      }
+    }
+    if (!near) return hide()
+
+    g.getWorldPosition(ndc)
+    const depth = -viewPos.copy(ndc).applyMatrix4(camera.matrixWorldInverse).z
+    // fade in as the camera approaches, out as it sweeps past or the panel is far away
+    const opacity = smooth((depth - 2.4) / 3) * (1 - smooth((depth - 15) / 8))
+    if (depth < 0.5 || opacity < 0.02) return hide()
+
+    ndc.project(camera)
+    const sx = (ndc.x * 0.5 + 0.5) * size.width
+    const sy = (-ndc.y * 0.5 + 0.5) * size.height
+    const fov = ((camera as PerspectiveCamera).fov * Math.PI) / 180
+    const pxPerUnit = size.height / (2 * Math.tan(fov / 2) * depth)
+    const scale = Math.round(((worldWidth * pxPerUnit) / px) * SCALE_STEPS) / SCALE_STEPS
+    const height = s.height || el.offsetHeight
+    const dpr = window.devicePixelRatio || 1
+    const x = Math.round((sx - (px * scale) / 2) * dpr) / dpr
+    const y = Math.round((sy - (height * scale) / 2) * dpr) / dpr
+
+    if (!s.shown) {
+      el.style.display = 'block'
+      s.shown = true
+    }
+    const transform = `translate3d(${x}px,${y}px,0) scale(${scale})`
+    if (transform !== s.transform) {
+      s.transform = transform
+      el.style.transform = transform
+    }
+    const o = Math.round(opacity * 50) / 50
+    if (o !== s.opacity) {
+      s.opacity = o
+      el.style.opacity = String(o)
+      el.style.pointerEvents = o > 0.5 ? 'auto' : 'none'
+    }
+    const z = String(Math.round(5000 - depth * 20))
+    if (z !== s.zIndex) {
+      s.zIndex = z
+      el.style.zIndex = z
+    }
+  })
+
+  return <group ref={group} />
 }

@@ -2,62 +2,66 @@ import { sceneInput } from '../lib/sceneInput'
 import { lastKf, sectionStart, SECTION_ORDER, type SectionId } from './path'
 
 /**
- * Scroll → camera. This is the ONE scroll system of the 3D experience:
- * native page scroll (wheel, trackpad, touch, keyboard, anchors all work) is
- * turned into a float keyframe index `k`. Nothing intercepts or hijacks the
- * scroll; the page simply has tall empty sections that give the scroll bar its
- * length.
+ * Scroll → camera. This is the ONE scroll system of the 3D experience: native page
+ * scroll (wheel, trackpad, touch, keyboard, anchors all work) is read once per
+ * rendered frame by the camera rig and turned into a float keyframe index.
+ * Nothing intercepts or hijacks the scroll; the page simply has tall empty
+ * sections that give the scroll bar its length.
  *
- * It is plain mutable state, read every frame by the camera rig, so scrolling
- * never triggers a React render.
+ * It is plain mutable state, so scrolling never triggers a React render.
  */
 export const journey = {
-  /** Raw target keyframe index from scroll position. */
+  /** Keyframe index at the *raw* scroll position (what the visitor is asking for). */
   k: 0,
-  /** Smoothed, eased keyframe index that the camera is actually at. */
+  /** Smoothed + eased keyframe index the camera is actually at. Drives culling and atmosphere. */
   kE: 0,
-  /** 0..1 over the whole journey, for progress UI. */
-  progress: 0,
+  /** Scroll position (px) the camera is currently showing: lags `scrollY` slightly. */
+  ySmooth: 0,
+  /**
+   * False while the world warms up (everything visible so every shader compiles and every
+   * buffer uploads once, behind the loader); true afterwards, when distance culling starts.
+   */
+  cull: false,
   /** Latest camera position, for debugging/verification. */
   cam: { x: 0, y: 0, z: 0 },
 }
 
-/** Fraction of each leg spent holding still at the stops (per side). Travel happens in the middle. */
-const HOLD = 0.25
+/**
+ * Slowest the camera ever travels, as a fraction of its average speed, at a stop.
+ * The camera eases toward each stop (so copy is readable) but never freezes: a dead
+ * zone makes the wheel feel unresponsive, then the camera surges when it ends.
+ */
+const MIN_SPEED = 0.45
 const smoothstep = (t: number) => t * t * (3 - 2 * t)
 
-/** Dwell at each stop so copy is readable, then glide to the next one. */
+/** Continuous ease: speed goes from MIN_SPEED at each stop up to ~1.5× mid-leg. */
 export function easeK(k: number): number {
   const i = Math.min(Math.floor(k), lastKf)
   const f = k - i
-  const t = Math.min(1, Math.max(0, (f - HOLD) / (1 - 2 * HOLD)))
-  return i + smoothstep(t)
+  return i + MIN_SPEED * f + (1 - MIN_SPEED) * smoothstep(f)
+}
+
+let tops: number[] = []
+let starts: number[] = []
+
+/** Scroll position (px) → keyframe index. */
+export function kFromY(y: number): number {
+  if (starts.length === 0) return 0
+  let index = 0
+  while (index < starts.length - 1 && y >= tops[index + 1]) index++
+  const lastSection = index === starts.length - 1
+  const span = Math.max(tops[index + 1] - tops[index], 1)
+  const local = Math.min(1, Math.max(0, (y - tops[index]) / span))
+  const owned = lastSection ? 0 : starts[index + 1] - starts[index]
+  return Math.min(lastKf, starts[index] + local * owned)
 }
 
 export function startJourneyInput(): () => void {
-  let tops: number[] = []
-  let starts: number[] = []
-
   const measure = () => {
     const sections = [...document.querySelectorAll<HTMLElement>('[data-journey-section]')]
     tops = sections.map((el) => el.getBoundingClientRect().top + window.scrollY)
     tops.push(document.documentElement.scrollHeight)
     starts = sections.map((el) => sectionStart[el.dataset.journeySection as SectionId])
-    update()
-  }
-
-  const update = () => {
-    if (starts.length === 0) return
-    const y = window.scrollY
-    let index = 0
-    while (index < starts.length - 1 && y >= tops[index + 1]) index++
-    const lastSection = index === starts.length - 1
-    const span = Math.max(tops[index + 1] - tops[index], 1)
-    const local = Math.min(1, Math.max(0, (y - tops[index]) / span))
-    const owned = lastSection ? 0 : starts[index + 1] - starts[index]
-    journey.k = Math.min(lastKf, starts[index] + local * owned)
-    const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1)
-    journey.progress = Math.min(1, Math.max(0, y / max))
   }
 
   const onPointer = (event: PointerEvent) => {
@@ -67,17 +71,19 @@ export function startJourneyInput(): () => void {
   }
 
   measure()
-  // land the camera on the stop that the initial scroll position (reload, deep link) points at
+  // land the camera on the stop the initial scroll position (reload, deep link) points at
+  journey.ySmooth = window.scrollY
+  journey.k = kFromY(window.scrollY)
   journey.kE = easeK(journey.k)
+  journey.cull = false
+
   const resizeObserver = new ResizeObserver(measure)
   resizeObserver.observe(document.body)
-  window.addEventListener('scroll', update, { passive: true })
   window.addEventListener('resize', measure)
   window.addEventListener('pointermove', onPointer, { passive: true })
 
   return () => {
     resizeObserver.disconnect()
-    window.removeEventListener('scroll', update)
     window.removeEventListener('resize', measure)
     window.removeEventListener('pointermove', onPointer)
   }
@@ -85,5 +91,7 @@ export function startJourneyInput(): () => void {
 
 export { SECTION_ORDER }
 
-// Dev-only handle so the camera's world position can be inspected while testing.
-if (import.meta.env.DEV) (window as unknown as { __journey: typeof journey }).__journey = journey
+// Debug handle (dev builds, or any build opened with ?debug) so the camera can be inspected while profiling.
+if (import.meta.env.DEV || new URLSearchParams(window.location.search).has('debug')) {
+  ;(window as unknown as { __journey: typeof journey }).__journey = journey
+}
