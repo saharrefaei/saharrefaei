@@ -119,6 +119,27 @@ specific one; add more events (each becomes its own stop) if you want to separat
 Viewer: click a floating frame, a thumbnail or *View photos*. Arrow keys / swipe change photo, Escape closes, focus
 is trapped and restored.
 
+## Phones and tablets
+
+Portrait screens (aspect < 0.9, the `narrow` layout) are laid out by **zones of the real screen height**, not fractions of it, because
+an iPhone shows only ~660px of page under Safari's toolbars but 844px without, and content sized by width collided on the short ones.
+
+* `phoneZones(height)` in `world/layoutCore.ts`: a 64px **chrome** strip (header), a **headline** zone (the station's 3D headline: company
+  name, project sculpture, ...) and the **content** zone below it. `usePhoneHeadline()` gives a station its headline centre and room;
+  headlines are sized to fit it.
+* `Panel` (`world/ui3d.tsx`) **fits itself** on phones: it shrinks until it fits the room it has (never below 0.62) and is kept inside the
+  zone, so no card can run off the screen. `reserve="headline"` keeps it below the headline; `dock="bottom"` pins it to the bottom.
+* **Hero**: the card is docked to the bottom and the name takes whatever room is left (`usePhoneHero`), so they cannot collide at any
+  height. The orb sits behind the name's upper right. `HERO_CARD_H` is the measured card height; update it if the card's content changes.
+* `phoneBox(width)`: panel width and text base per screen width, so a portrait tablet gets a ~640px column instead of phone copy
+  blown up 2x. `panel.css` has the phone rules (even 2-column button grid, compact type on short screens, tagline hidden under 760px).
+* **Navigation**: under 768px the pills become a Menu button that opens a full-screen menu (focus-trapped dialog, page behind `inert`,
+  scroll locked, Escape closes). The 3D/simple switch lives in that menu. From 768px up it is the original pill bar and corner pill.
+* **Progress**: the vertical rail becomes a hairline along the bottom edge on phones. The "scroll to travel" hint moves under the header on
+  portrait screens. The loading screen stacks the name on two lines (inline, it ran together and clipped).
+* Not specially designed: phones in **landscape** use the desktop-style 3D layout (compact header and button grid still apply); text is
+  small there but nothing overflows.
+
 ## Project & experience detail views
 
 Every project and job is clickable (the whole card, plus a visible **View details →** link) and opens a full-screen

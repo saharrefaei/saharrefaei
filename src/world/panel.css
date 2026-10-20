@@ -268,3 +268,78 @@
 .wp .wp__h {
   font-size: 34px;
 }
+
+/* ── phones ── */
+@media (max-width: 767px) {
+  .wp {
+    padding: 18px 20px 20px;
+  }
+
+  /* calls to action: an even two-column grid of thumb-sized buttons instead of a ragged wrap */
+  .wp__links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .wp__links > li,
+  .wp__links > .pill {
+    min-width: 0;
+  }
+  .wp__links > li:only-child,
+  .wp__links > .pill:only-child {
+    grid-column: 1 / -1;
+  }
+  .wp__links .pill {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    padding-inline: 10px;
+  }
+}
+
+/* short phone screens (iPhone Safari with its toolbars is only ~660px tall): trim the optional copy */
+@media (max-width: 767px) and (max-height: 759px) {
+  .wp__tagline {
+    display: none;
+  }
+}
+
+/* short phones (about 640px or less of page height): tighter type and spacing, so the fit scale stays near 1
+   and text stays comfortably readable instead of being shrunk to make a tall panel fit */
+@media (max-width: 767px) and (max-height: 700px) {
+  .wp {
+    padding: 14px 16px 16px;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .wp h2 {
+    font-size: 30px !important;
+  }
+  .wp .wp__h {
+    font-size: 26px !important;
+  }
+  .wp .wp__lead {
+    font-size: 18px !important;
+  }
+  .wp__facts {
+    gap: 8px 14px;
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+  .wp__facts dd {
+    font-size: 15px;
+  }
+  .wp__chips {
+    margin-top: 10px;
+  }
+  .wp .dtrigger,
+  .wp__links {
+    margin-top: 12px;
+  }
+  .wp__row {
+    padding-block: 8px;
+  }
+  .wp__row-value {
+    font-size: 16px;
+  }
+}

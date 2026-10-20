@@ -3,7 +3,7 @@ import { experience, type Experience } from '../../content/experience'
 import { projects, type Project } from '../../content/projects'
 import { DetailTrigger } from '../../detail/DetailTrigger'
 import { Anchor } from '../layout'
-import { useAnchorMetrics, useLayout, useNearKf } from '../layoutCore'
+import { useAnchorMetrics, useLayout, useNearKf, usePanelBox, usePhoneHeadline } from '../layoutCore'
 import { keyframes, sectionStart } from '../path'
 import { ProjectModel } from '../ProjectModels'
 import { Panel, Title3D } from '../ui3d'
@@ -31,12 +31,15 @@ function EducationList() {
 }
 
 function CompanyTitle({ text }: { text: string }) {
-  const { visibleW } = useAnchorMetrics()
+  const { visibleW, visibleH } = useAnchorMetrics()
   const { narrow } = useLayout()
+  const headline = usePhoneHeadline()
+  // phones: never taller than the headline zone (cap height is about 0.7 em)
+  const phoneEm = Math.min(visibleW * 0.14, (headline.room * 0.8 * visibleH) / headline.height / 0.72)
   return (
     <Title3D
       text={text}
-      size={visibleW * (narrow ? 0.14 : 0.085)}
+      size={narrow ? phoneEm : visibleW * 0.085}
       maxWidth={visibleW * (narrow ? 0.88 : 0.46)}
       look="chrome"
       depth={visibleW * 0.015}
@@ -52,16 +55,18 @@ function GhostTitle({ text }: { text: string }) {
 
 function JobStop({ job, kf, index }: { job: Experience; kf: number; index: number }) {
   const { narrow } = useLayout()
+  const headline = usePhoneHeadline()
+  const box = usePanelBox(430, 0.34)
   const side = index % 2 ? 1 : -1
   const last = index === experience.length - 1
   return (
     <>
-      <Anchor kf={kf} desktop={[side * 0.34, 0.5, 13]} narrow={[0, 0.58, 12]} range={1.5}>
+      <Anchor kf={kf} desktop={[side * 0.34, 0.5, 13]} narrow={[0, headline.ny, 12]} range={1.5}>
         <CompanyTitle text={job.shortName} />
       </Anchor>
 
       <Anchor kf={kf} desktop={[side * 0.34, -0.2, 10.5]} narrow={[0, -0.12, 9]} range={1.3}>
-        <Panel px={narrow ? 330 : 430} frac={narrow ? 0.94 : 0.34} theme="ink" className="has-detail">
+        <Panel {...box} theme="ink" className="has-detail" reserve="headline">
           <h2 className="sr-only">{job.company}</h2>
           <p className="wp__eyebrow wp__muted">
             {job.current ? <span className="wp__now">Now</span> : null}
@@ -142,26 +147,30 @@ export function ExperienceStation() {
 }
 
 function ScaledModel({ kind }: { kind: Project['visual'] }) {
-  const { visibleW } = useAnchorMetrics()
+  const { visibleW, visibleH } = useAnchorMetrics()
   const { narrow } = useLayout()
+  const headline = usePhoneHeadline()
+  // phones: the sculpture is as large as the headline zone allows (it is about 2.6 units across at scale 1)
+  const phoneScale = (Math.min(headline.width * 0.62, headline.room) * visibleH) / headline.height / 2.6
   return (
-    <group scale={((narrow ? 0.62 : 0.27) * visibleW) / 2.6}>
+    <group scale={narrow ? phoneScale : (0.27 * visibleW) / 2.6}>
       <ProjectModel kind={kind} />
     </group>
   )
 }
 
 function ProjectStop({ project, kf, index }: { project: Project; kf: number; index: number }) {
-  const { narrow } = useLayout()
+  const headline = usePhoneHeadline()
+  const box = usePanelBox(430, 0.34)
   const side = index % 2 ? -1 : 1
   return (
     <>
-      <Anchor kf={kf} desktop={[-side * 0.3, 0.02, 11.5]} narrow={[0, 0.5, 10.5]} range={1.5}>
+      <Anchor kf={kf} desktop={[-side * 0.3, 0.02, 11.5]} narrow={[0, headline.ny, 10.5]} range={1.5}>
         <ScaledModel kind={project.visual} />
       </Anchor>
 
       <Anchor kf={kf} desktop={[side * 0.34, 0, 10]} narrow={[0, -0.34, 9]} range={1.3}>
-        <Panel px={narrow ? 330 : 430} frac={narrow ? 0.94 : 0.34} theme="heat" className="has-detail">
+        <Panel {...box} theme="heat" className="has-detail" reserve="headline">
           <p className="wp__eyebrow">
             {String(index + 1).padStart(2, '0')} · {project.kind}
           </p>

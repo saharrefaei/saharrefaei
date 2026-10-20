@@ -54,11 +54,17 @@
   letter-spacing: -0.035em;
 }
 
+/* the two words stack on phones: inline they ran together ("SAHARREFAEI") and overflowed the screen */
+.world-loader__name span {
+  display: block;
+}
+
 @media (min-width: 900px) {
   .world-loader__name {
     font-size: min(17.4vw, 16.2rem, 42vh);
   }
   .world-loader__name span {
+    display: inline;
     margin-right: 0.2em;
   }
 }
@@ -148,12 +154,42 @@
   }
 }
 
-@media (max-width: 767px) {
-  /* keep the hint clear of the hero buttons */
+/* portrait screens (phones and tablets): the card spans the width at the bottom, so the hint moves to the top */
+@media (max-width: 767px), (max-width: 1099px) and (orientation: portrait) {
   .world-hint {
-    top: 4.4rem;
-    right: 2.6rem;
+    top: calc(max(0.7rem, env(safe-area-inset-top)) + 3.35rem);
+    right: var(--gutter);
     bottom: auto;
+    flex-direction: row;
+    gap: 0.5rem;
+    font-size: 0.66rem;
+  }
+}
+
+@media (max-width: 767px) {
+
+  /* phones: the vertical rail would sit on top of the content, so progress becomes a hairline on the bottom edge */
+  .world-rail {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    height: 3px;
+    transform: none;
+  }
+  .world-rail__line {
+    inset: 0;
+    width: auto;
+    height: 3px;
+    background: rgba(255, 250, 246, 0.14);
+  }
+  .world-rail__fill {
+    transform: scaleX(var(--p, 0));
+    transform-origin: left;
+  }
+  .world-rail__tick {
+    display: none;
   }
 }
 

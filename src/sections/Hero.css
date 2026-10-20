@@ -124,6 +124,19 @@
   animation: hero-fade 1s var(--ease-out) 1.15s both;
 }
 
+/* phones: an even two-column grid of thumb-sized buttons instead of a ragged wrap */
+@media (max-width: 520px) {
+  .hero__links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hero__links .pill {
+    width: 100%;
+    min-height: 2.9rem;
+    justify-content: center;
+  }
+}
+
 @keyframes hero-fade {
   from {
     opacity: 0;

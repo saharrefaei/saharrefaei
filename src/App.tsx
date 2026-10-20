@@ -80,7 +80,7 @@ export default function App() {
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        <Header />
+        <Header menuExtra={canOfferWorld ? <ViewToggle mode={world ? 'world' : 'flat'} onToggle={toggle} variant="menu" /> : null} />
         {canOfferWorld ? <ViewToggle mode={world ? 'world' : 'flat'} onToggle={toggle} /> : null}
 
         {world ? (
