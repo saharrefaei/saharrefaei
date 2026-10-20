@@ -28,3 +28,25 @@
     left: clamp(0.75rem, 2vw, 1.5rem);
   }
 }
+
+/* phones: the corner pill is replaced by the copy inside the menu */
+@media (max-width: 767px) {
+  .view-toggle--floating {
+    display: none;
+  }
+}
+
+.view-toggle--menu {
+  position: static;
+  width: 100%;
+  min-height: 3rem;
+  background: transparent;
+  color: var(--white);
+  border: 1.5px solid rgba(255, 250, 246, 0.5);
+  box-shadow: none;
+  font-size: 0.8rem;
+}
+
+.view-toggle--menu:hover {
+  border-color: var(--orange);
+}

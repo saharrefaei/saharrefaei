@@ -67,36 +67,208 @@
   color: var(--ink);
 }
 
-@media (max-width: 520px) {
+/* the Menu button only exists on phones */
+.site-nav__menu {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .site-header {
+    top: 0;
+    padding: max(0.7rem, env(safe-area-inset-top)) var(--gutter) 0;
+  }
   .site-nav {
-    gap: 0.2rem;
-    min-width: 0;
+    width: 100%;
+    justify-content: space-between;
   }
   .site-nav__list {
-    gap: 0.2rem;
-    min-width: 0;
-    /* last-resort safety net on very narrow phones: the pills scroll instead of overflowing the page */
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .site-nav__list li {
-    flex: none;
-  }
-  .site-nav__logo,
-  .site-nav__link {
-    padding-inline: 0.46rem;
-    font-size: 0.72rem;
-    min-height: 2.5rem; /* keeps a comfortable touch target */
+    display: none;
   }
   .site-nav__logo {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    justify-content: center;
+    /* a hairline ring keeps the dark badge visible over the dark sections too */
+    box-shadow: 0 0 0 1.5px rgba(255, 250, 246, 0.32);
+  }
+  .site-nav__menu {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.75rem;
+    padding: 0.3rem 1.1rem 0.3rem 1.2rem;
+    border-radius: var(--radius-pill);
+    background: var(--white);
+    color: var(--ink);
     font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 6px 24px -10px rgba(20, 8, 15, 0.4);
+  }
+  .site-nav__menu-bars {
+    position: relative;
+    width: 1rem;
+    height: 0.62rem;
+    border-block: 2px solid currentColor;
+  }
+  .site-nav__menu-bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    margin-top: -1px;
+    background: currentColor;
   }
 }
 
-@media (max-width: 380px) {
-  .site-nav__logo,
-  .site-nav__link {
-    padding-inline: 0.38rem;
-    font-size: 0.66rem;
+/* ─── full-screen menu (phones) ─── */
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: max(0.7rem, env(safe-area-inset-top)) var(--gutter) max(1.25rem, env(safe-area-inset-bottom));
+  color: var(--text-on-ink);
+  background:
+    radial-gradient(90% 55% at 100% 0%, rgba(255, 61, 139, 0.32), transparent 70%),
+    radial-gradient(80% 50% at 0% 100%, rgba(194, 31, 216, 0.26), transparent 70%),
+    var(--ink);
+  pointer-events: auto;
+  outline: none;
+  animation: menu-in 0.5s var(--ease-out) both;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-1.5rem);
+  }
+}
+
+.menu__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu .site-nav__logo {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  justify-content: center;
+  border: 1.5px solid rgba(255, 250, 246, 0.35);
+  box-shadow: none;
+}
+
+.menu__close {
+  min-height: 2.75rem;
+  padding-inline: 1.2rem;
+}
+
+.menu .pill:hover,
+.menu .pill:focus-visible {
+  background: var(--orange);
+  color: var(--ink);
+}
+
+.menu :focus-visible {
+  outline-color: var(--white);
+}
+
+.menu__nav ul {
+  display: grid;
+  align-content: center;
+  height: 100%;
+}
+
+.menu__nav li {
+  border-bottom: 1px solid rgba(255, 250, 246, 0.16);
+  animation: menu-link-in 0.6s var(--ease-out) both;
+  animation-delay: calc(0.08s + var(--i) * 0.05s);
+}
+
+.menu__nav li:first-child {
+  border-top: 1px solid rgba(255, 250, 246, 0.16);
+}
+
+@keyframes menu-link-in {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+
+.menu__nav a {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-height: 3.6rem;
+  padding-block: clamp(0.35rem, 1.6vh, 0.8rem);
+}
+
+.menu__num {
+  color: var(--text-on-ink-muted);
+}
+
+.menu__label {
+  font-size: clamp(2.2rem, 12vw, 3.6rem);
+  line-height: 0.95;
+}
+
+.menu__arrow {
+  font-size: 1.4rem;
+  transition: transform 0.3s var(--ease-out);
+}
+
+.menu__nav a[aria-current='true'] .menu__label {
+  background: var(--gradient-heat);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.menu__nav a:active .menu__arrow {
+  transform: translateX(6px);
+}
+
+.menu__foot {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.menu__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  color: var(--text-on-ink-muted);
+  font-weight: 600;
+}
+
+.menu__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+@media (max-height: 560px) {
+  .menu__label {
+    font-size: 2rem;
+  }
+  .menu__nav a {
+    min-height: 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu,
+  .menu__nav li {
+    animation: none;
   }
 }

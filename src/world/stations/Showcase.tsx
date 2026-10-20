@@ -6,7 +6,7 @@ import { emailAddress, links, profile } from '../../content/profile'
 import { sceneInput } from '../../lib/sceneInput'
 import { renderDotGrid } from '../../lib/dotFont'
 import { Anchor } from '../layout'
-import { useAnchorMetrics, useLayout, useNearKf } from '../layoutCore'
+import { useAnchorMetrics, useLayout, useNearKf, usePanelBox, usePhoneHeadline } from '../layoutCore'
 import { lightbox } from '../lightboxStore'
 import { eventLeg, sectionStart } from '../path'
 import { Panel, Title3D } from '../ui3d'
@@ -185,9 +185,11 @@ function LoadedFrame({
 }
 
 function EventKind({ text }: { text: string }) {
-  const { visibleW } = useAnchorMetrics()
+  const { visibleW, visibleH } = useAnchorMetrics()
   const { narrow } = useLayout()
-  return <Title3D text={text} size={visibleW * (narrow ? 0.12 : 0.085)} maxWidth={visibleW * (narrow ? 0.88 : 0.5)} look="chrome" depth={visibleW * 0.015} />
+  const headline = usePhoneHeadline()
+  const phoneEm = Math.min(visibleW * 0.12, (headline.room * 0.8 * visibleH) / headline.height / 0.72)
+  return <Title3D text={text} size={narrow ? phoneEm : visibleW * 0.085} maxWidth={visibleW * (narrow ? 0.88 : 0.5)} look="chrome" depth={visibleW * 0.015} />
 }
 
 function EventsGhost() {
@@ -197,9 +199,10 @@ function EventsGhost() {
 
 function EventPanel({ event }: { event: CommunityEvent }) {
   const { narrow } = useLayout()
+  const box = usePanelBox(410, 0.3)
   const allSample = event.photos.every((p) => p.sample)
   return (
-    <Panel px={narrow ? 330 : 410} frac={narrow ? 0.94 : 0.3} theme="ink">
+    <Panel {...box} theme="ink" reserve="headline">
       <p className="wp__eyebrow wp__muted">
         {event.kind}
         {event.location ? ` · ${event.location}` : ''}
@@ -243,9 +246,10 @@ function EventPanel({ event }: { event: CommunityEvent }) {
 
 function EventStop({ event, kf, index, galleryLoaded }: { event: CommunityEvent; kf: number; index: number; galleryLoaded: boolean }) {
   const { narrow } = useLayout()
+  const headline = usePhoneHeadline()
   return (
     <>
-      <Anchor kf={kf} desktop={[-0.2, 0.68, 16]} narrow={[0, 0.7, 14]} range={1.6}>
+      <Anchor kf={kf} desktop={[-0.2, 0.68, 16]} narrow={[0, headline.ny, 14]} range={1.6}>
         <EventKind text={`${event.verified ? '' : 'SAMPLE '}${event.kind.toUpperCase()}`} />
       </Anchor>
       <Anchor kf={kf} desktop={[-0.56, -0.05, 8]} narrow={[0, -0.34, 8]} range={1.2}>
@@ -366,7 +370,7 @@ function DotWord3D({ text, width, height }: { text: string; width: number; heigh
 function Hello() {
   const { visibleW, visibleH } = useAnchorMetrics()
   const { narrow } = useLayout()
-  return <DotWord3D text="HELLO" width={visibleW * (narrow ? 0.9 : 0.74)} height={visibleH} />
+  return <DotWord3D text="HELLO" width={visibleW * (narrow ? 0.8 : 0.74)} height={visibleH} />
 }
 
 const CONTACT_ROWS = [
@@ -378,14 +382,16 @@ const CONTACT_ROWS = [
 export function ContactStation() {
   const kf = sectionStart.contact
   const { narrow } = useLayout()
+  const headline = usePhoneHeadline()
+  const box = usePanelBox(640, 0.56)
   return (
     <>
-      <Anchor kf={kf} desktop={[0, 0.4, 15]} narrow={[0, 0.5, 14]} range={2.2}>
+      <Anchor kf={kf} desktop={[0, 0.4, 15]} narrow={[0, headline.ny, 14]} range={2.2}>
         <Hello />
       </Anchor>
 
       <Anchor kf={kf} desktop={[0, -0.5, 10]} narrow={[0, -0.42, 8.5]} range={1.3}>
-        <Panel px={narrow ? 330 : 640} frac={narrow ? 0.94 : 0.56} theme="ink">
+        <Panel {...box} theme="ink" reserve="headline">
           <h2 style={{ fontSize: narrow ? 30 : 40 }}>Let’s build something thoughtful.</h2>
           <p className="wp__muted" style={{ marginTop: 10 }}>
             Frontend engineering, applied AI, or an idea worth prototyping: I’d love to hear what you’re working on.
@@ -417,7 +423,7 @@ export function ContactStation() {
         </Panel>
       </Anchor>
 
-      <Anchor kf={kf} desktop={[0.82, 0.72, 28]} narrow={[0.35, 0.78, 28]} range={2.4}>
+      <Anchor kf={kf} desktop={[0.82, 0.72, 28]} narrow={[0.4, headline.ny + 0.04, 28]} range={2.4}>
         <Orb frac={narrow ? 0.6 : 0.3} />
       </Anchor>
     </>

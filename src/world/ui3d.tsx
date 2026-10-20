@@ -3,7 +3,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { useFrame } from '@react-three/fiber'
 import { Text3D } from '@react-three/drei'
 import { Vector3, type Group, type Mesh, type MeshBasicMaterial, type PerspectiveCamera } from 'three'
-import { domLayer, NearContext, useAnchorMetrics } from './layoutCore'
+import { domLayer, NearContext, phoneZones, useAnchorMetrics, useLayout } from './layoutCore'
 import type { Theme } from './path'
 import './panel.css'
 
@@ -112,6 +112,15 @@ type PanelProps = {
   frac: number
   theme: Theme
   className?: string
+  /**
+   * Phones only. The panel is scaled down until it fits the height between the header (or the station's
+   * headline zone) and the bottom of the screen, and kept inside it.
+   *  - 'chrome' (default): may use all the room under the header
+   *  - 'headline': stays below the station's headline zone (see phoneZones)
+   */
+  reserve?: 'chrome' | 'headline'
+  /** Phones only: sit on the bottom edge of the usable area instead of being centred on its anchor. */
+  dock?: 'bottom'
   children: ReactNode
 }
 
@@ -132,8 +141,11 @@ const SCALE_STEPS = 96
  * `translate3d(x, y) scale(s)`, with x/y snapped to whole *device* pixels and s quantised, so the
  * browser rasterises the text natively at its final size: always crisp, also while the camera moves.
  */
-export function Panel({ px, frac, theme, className, children }: PanelProps) {
+const MIN_PHONE_SCALE = 0.62
+
+export function Panel({ px, frac, theme, className, reserve = 'chrome', dock, children }: PanelProps) {
   const { visibleW } = useAnchorMetrics()
+  const { narrow } = useLayout()
   const near = useContext(NearContext)
   const group = useRef<Group>(null)
   const state = useRef<PanelState>({ el: null, root: null, height: 0, transform: '', opacity: -1, zIndex: '', shown: false })
@@ -186,21 +198,35 @@ export function Panel({ px, frac, theme, className, children }: PanelProps) {
     const opacity = smooth((depth - 2.4) / 3) * (1 - smooth((depth - 15) / 8))
     if (depth < 0.5 || opacity < 0.02) return hide()
 
+    // show it before measuring: a hidden panel measures 0, which would skip the phone fit on its first frame
+    if (!s.shown) {
+      el.style.display = 'block'
+      s.shown = true
+    }
+
     ndc.project(camera)
     const sx = (ndc.x * 0.5 + 0.5) * size.width
     const sy = (-ndc.y * 0.5 + 0.5) * size.height
     const fov = ((camera as PerspectiveCamera).fov * Math.PI) / 180
     const pxPerUnit = size.height / (2 * Math.tan(fov / 2) * depth)
-    const scale = Math.round(((worldWidth * pxPerUnit) / px) * SCALE_STEPS) / SCALE_STEPS
+    let scale = Math.round(((worldWidth * pxPerUnit) / px) * SCALE_STEPS) / SCALE_STEPS
     const height = s.height || el.offsetHeight
     const dpr = window.devicePixelRatio || 1
-    const x = Math.round((sx - (px * scale) / 2) * dpr) / dpr
-    const y = Math.round((sy - (height * scale) / 2) * dpr) / dpr
+    let top = sy - (height * scale) / 2
 
-    if (!s.shown) {
-      el.style.display = 'block'
-      s.shown = true
+    if (narrow) {
+      // fit the panel into the room this phone really has, instead of letting it run off the screen
+      const zones = phoneZones(size.height)
+      const topLimit = reserve === 'headline' ? zones.split : zones.chrome + 8
+      const bottomLimit = size.height - zones.bottom
+      const room = bottomLimit - topLimit
+      if (height * scale > room) scale = Math.max(MIN_PHONE_SCALE, Math.floor((room / height) * SCALE_STEPS) / SCALE_STEPS)
+      const scaledHeight = height * scale
+      top = dock === 'bottom' ? bottomLimit - scaledHeight : Math.min(Math.max(top, topLimit), Math.max(topLimit, bottomLimit - scaledHeight))
     }
+    const x = Math.round((sx - (px * scale) / 2) * dpr) / dpr
+    const y = Math.round(top * dpr) / dpr
+
     const transform = `translate3d(${x}px,${y}px,0) scale(${scale})`
     if (transform !== s.transform) {
       s.transform = transform
