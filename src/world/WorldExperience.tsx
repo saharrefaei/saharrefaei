@@ -13,7 +13,6 @@ const SECTION_VH: Record<SectionId, number> = {
   about: 125,
   experience: sectionOwned.experience * 105,
   projects: sectionOwned.projects * 110,
-  interests: sectionOwned.interests * 105,
   events: sectionOwned.events * 125,
   contact: 100,
 }

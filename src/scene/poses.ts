@@ -1,6 +1,6 @@
 /**
  * Where the 3D composition sits for each page section, in order:
- * hero · about · experience · projects · interests · contact.
+ * hero · about · experience · projects · events · contact.
  * x / y are viewport-normalised (-1..1); scale is relative to the viewport fit.
  */
 export type Pose = {

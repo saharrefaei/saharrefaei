@@ -20,7 +20,6 @@ export const navItems = [
   { id: 'about', label: 'About' },
   { id: 'experience', label: 'Work' },
   { id: 'projects', label: 'Projects' },
-  { id: 'interests', label: 'Focus' },
   { id: 'events', label: 'Events' },
   { id: 'contact', label: 'Contact' },
 ] as const

@@ -38,7 +38,7 @@ native scroll (wheel / trackpad / touch / keyboard / anchors)
   nav links, the back button, deep links and keyboard scrolling all work, and nothing intercepts the wheel.
   There is no GSAP/ScrollControls/Lenis: `journey.ts` is plain mutable state read inside `useFrame`, so scrolling
   causes no React renders.
-* **The path is built from content** (`world/path.ts`). One keyframe per job, project, interest group and event
+* **The path is built from content** (`world/path.ts`). One keyframe per job, project and event
   (plus hero, about, contact). Add an entry to `src/content/*` and the road gets longer automatically.
 * **Content lives in the world** via `<Anchor kf nx ny d>` (`world/layout.tsx`): a group fixed in world space at
   `(nx, ny)` of the visible area, `d` units in front of that keyframe's camera. The same layout therefore adapts to a
@@ -70,7 +70,7 @@ Both read the same data in `src/content/`. The 3D code is a lazy chunk the flat 
 ```
 src/
   App.tsx              mode switch (world / flat), skip link, header
-  content/             typed data: profile, experience, projects, interests, events. Edit copy here
+  content/             typed data: profile, experience, projects, events. Edit copy here
   world/               THE 3D EXPERIENCE
     path.ts            keyframes → camera + look-at splines, per-keyframe camera frames
     journey.ts         scroll → keyframe index (+ dwell/travel easing)
@@ -79,7 +79,7 @@ src/
     ui3d.tsx           Title3D (extruded text), Panel (DOM in 3D)
     Backdrop.tsx       stars, gates, shards
     ProjectModels.tsx  one 3D sculpture per project
-    stations/          Intro (hero, about) · Work (experience, projects) · Showcase (focus, events, contact)
+    stations/          Intro (hero, about) · Work (experience, projects) · Showcase (events, contact)
     lightboxStore.ts   tiny external store for the fullscreen photo viewer
     WorldExperience.tsx  loader, scroll track, progress rail
   scene/               OrbRig (shared signature object), Composition + SceneHost (flat mode only)
@@ -105,9 +105,9 @@ Honesty is built into the UI: an event with `verified: false` shows a **Sample e
 photo with `sample: true` shows a **Sample photo** badge (also drawn in 3D under the frame and inside the viewer). Use those
 flags for placeholders; real events need neither.
 
-Current content: the *Claude × Taxfix Hackathon* (8 photos; role "Helped organize", exactly as provided) and *Claude
-Community Berlin* (2 photos, no role stated). Photos were grouped by what is visible in them (slides, laptop stickers,
-banners); fix the grouping in `events.ts` if any photo is in the wrong event.
+Current content: one gallery, *Events in Berlin* (10 photos), described as moments from events in Berlin "including the
+Claude × Taxfix Hackathon, which I organised". The photos come from more than one event, so none is claimed to be from a
+specific one; add more events (each becomes its own stop) if you want to separate them.
 
 Viewer: click a floating frame, a thumbnail or *View photos*. Arrow keys / swipe change photo, Escape closes, focus
 is trapped and restored.

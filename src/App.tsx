@@ -13,7 +13,6 @@ import { Contact } from './sections/Contact'
 import { Events } from './sections/Events'
 import { Experience } from './sections/Experience'
 import { Hero } from './sections/Hero'
-import { Interests } from './sections/Interests'
 import { Projects } from './sections/Projects'
 
 // The immersive 3D journey is a separate chunk: the flat page never pays for it.
@@ -88,7 +87,6 @@ export default function App() {
             <About />
             <Experience />
             <Projects />
-            <Interests />
             <Events />
             <Contact />
           </main>

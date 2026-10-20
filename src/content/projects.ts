@@ -27,6 +27,7 @@ export const projects: Project[] = [
       'A federated-learning framework where each client trains only the Vision Transformer depth that fits its local data complexity — combined with mask-aware aggregation and entropy-based routing.',
     tech: ['PyTorch', 'Vision Transformers', 'Federated Learning', 'Python'],
     visual: 'network',
+    github: 'https://github.com/Reliable-and-Secure-Systems/Federated-learning',
   },
   {
     id: 'genai-images',

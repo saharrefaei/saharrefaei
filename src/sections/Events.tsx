@@ -9,7 +9,7 @@ export function Events() {
   return (
     <section id="events" className="section on-ink events" data-scene-section aria-labelledby="events-title">
       <div className="container">
-        <SectionHead index="05" label="Events & community" titleId="events-title" titleLines={['Events &', 'community']} tone="ink" />
+        <SectionHead index="04" label="Events & community" titleId="events-title" titleLines={['Events &', 'community']} tone="ink" />
 
         <div className="events__list">
           {events.map((event) => {

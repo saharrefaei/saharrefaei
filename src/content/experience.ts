@@ -26,8 +26,8 @@ export const experience: Experience[] = [
     period: 'Present',
     current: true,
     summary:
-      'Building product features for a consumer tax app with React, React Native and TypeScript — shipping experiment-driven changes with feature flags, A/B testing and analytics.',
-    stack: ['React', 'React Native', 'TypeScript'],
+      'Building product features for a consumer tax app with React, React Native and TypeScript — shipping experiment-driven changes with feature flags, A/B testing and analytics. I also build with AI agents and work with Python and BigQuery.',
+    stack: ['React', 'React Native', 'TypeScript', 'AI agents', 'Python', 'BigQuery'],
   },
   {
     id: 'almedia',

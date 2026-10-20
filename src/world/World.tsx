@@ -10,7 +10,7 @@ import { journey, startJourneyInput } from './journey'
 import { LayoutProvider } from './layout'
 import { domLayer, useLayout } from './layoutCore'
 import { AboutStation, HeroStation } from './stations/Intro'
-import { ContactStation, EventsStation, InterestsStation } from './stations/Showcase'
+import { ContactStation, EventsStation } from './stations/Showcase'
 import { ExperienceStation, ProjectsStation } from './stations/Work'
 import { FONT_URL } from './ui3d'
 import './world.css'
@@ -126,7 +126,6 @@ function Scene({ onWarm }: { onWarm: () => void }) {
       <AboutStation />
       <ExperienceStation />
       <ProjectsStation />
-      <InterestsStation />
       <EventsStation />
       <ContactStation />
     </>

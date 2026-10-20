@@ -1,8 +1,7 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { CanvasTexture, Color, ImageBitmapLoader, MathUtils, Object3D, SRGBColorSpace, Texture, type Group, type InstancedMesh } from 'three'
 import { events, type CommunityEvent, type EventPhoto } from '../../content/events'
-import { interests, type Interest, type InterestGroup } from '../../content/interests'
 import { emailAddress, links, profile } from '../../content/profile'
 import { sceneInput } from '../../lib/sceneInput'
 import { renderDotGrid } from '../../lib/dotFont'
@@ -14,91 +13,6 @@ import { Panel, Title3D } from '../ui3d'
 import { Orb } from './Intro'
 
 const damp = MathUtils.damp
-
-/* ───────────────────────── Focus: interests floating at different depths ───────────────────────── */
-
-const GROUP_COLOR: Record<InterestGroup, string> = {
-  Craft: 'var(--orange)',
-  Intelligence: 'var(--pink)',
-  Tooling: 'var(--magenta)',
-}
-
-type Slot = [number, number, number]
-const STOP_A: Slot[] = [
-  [-0.52, 0.3, 9],
-  [0.42, 0.4, 12.5],
-  [-0.3, -0.36, 15],
-  [0.5, -0.32, 10.5],
-]
-const STOP_B: Slot[] = [
-  [0.5, 0.32, 9.5],
-  [-0.46, 0.4, 12],
-  [0.22, -0.4, 14.5],
-  [-0.5, -0.34, 10],
-]
-const NARROW_SLOTS: Slot[] = [
-  [-0.18, 0.52, 9],
-  [0.2, 0.2, 11],
-  [-0.18, -0.12, 10],
-  [0.16, -0.44, 9.5],
-]
-
-const STOP_ITEMS: Interest[][] = [
-  interests.filter((i) => i.group !== 'Intelligence'),
-  interests.filter((i) => i.group === 'Intelligence'),
-]
-
-function InterestItem({ item, first }: { item: Interest; first: boolean }) {
-  const { narrow } = useLayout()
-  return (
-    <Panel px={narrow ? 270 : 360} frac={narrow ? 0.7 : 0.26} theme="paper" className="wp--bare">
-      {first ? <h2 className="sr-only">Engineering and AI interests</h2> : null}
-      <button type="button" className="wp-tag" style={{ '--group': GROUP_COLOR[item.group] } as CSSProperties}>
-        <span className="wp-tag__group">
-          <span className="wp-tag__dot" aria-hidden="true" />
-          {item.group}
-        </span>
-        <span className="wp-tag__title" style={narrow ? { fontSize: 40 } : undefined}>
-          {item.title}
-        </span>
-        <span className="wp-tag__note">{item.note}</span>
-      </button>
-    </Panel>
-  )
-}
-
-function FocusGhost() {
-  const { visibleW } = useAnchorMetrics()
-  return <Title3D text="FOCUS" size={visibleW * 0.24} look="ghostInk" depth={visibleW * 0.03} />
-}
-
-export function InterestsStation() {
-  const first = sectionStart.interests
-  const { narrow } = useLayout()
-  return (
-    <>
-      {STOP_ITEMS.map((items, stop) =>
-        items.map((item, i) => {
-          const slot = (narrow ? NARROW_SLOTS : stop === 0 ? STOP_A : STOP_B)[i]
-          return (
-            <Anchor key={item.id} kf={first + stop} desktop={slot} narrow={slot} range={1.4}>
-              <InterestItem item={item} first={stop === 0 && i === 0} />
-            </Anchor>
-          )
-        }),
-      )}
-      <Anchor kf={first} desktop={[0, 0.05, 34]} narrow={[0, 0.3, 34]} range={2.2}>
-        <FocusGhost />
-      </Anchor>
-      {narrow ? null : (
-        // off to the side: visible from the first stop, well outside the second stop's view
-        <Anchor kf={first} desktop={[0.8, 0.7, 20]} range={1.6}>
-          <Orb frac={0.22} />
-        </Anchor>
-      )}
-    </>
-  )
-}
 
 /* ───────────────────────── Events: floating photo frames you can fly past and open ───────────────────────── */
 

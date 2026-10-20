@@ -13,7 +13,7 @@ import { projects } from '../content/projects'
  * project or event extends the path automatically.
  */
 
-export type SectionId = 'top' | 'about' | 'experience' | 'projects' | 'interests' | 'events' | 'contact'
+export type SectionId = 'top' | 'about' | 'experience' | 'projects' | 'events' | 'contact'
 export type Theme = 'paper' | 'ink' | 'heat'
 
 export type Keyframe = {
@@ -25,8 +25,7 @@ export type Keyframe = {
   theme: Theme
 }
 
-export const SECTION_ORDER: SectionId[] = ['top', 'about', 'experience', 'projects', 'interests', 'events', 'contact']
-export const INTEREST_STOPS = 2
+export const SECTION_ORDER: SectionId[] = ['top', 'about', 'experience', 'projects', 'events', 'contact']
 
 const PAPER = '#e8dcd2'
 const PAPER_LIGHT = '#eee8e3'
@@ -62,12 +61,6 @@ function build() {
     push('projects', v(x, 0.3, z), v(-x * 0.4, 0.2, z - 12), HEAT, 'heat')
     z -= 12
   })
-
-  z -= 8
-  for (let k = 0; k < INTEREST_STOPS; k++) {
-    push('interests', v(k ? 1.6 : -1.6, 0.3, z), v(0, 0.2, z - 12), PAPER_LIGHT, 'paper')
-    z -= 14
-  }
 
   z -= 8
   events.forEach((event) => {

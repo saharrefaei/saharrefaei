@@ -35,12 +35,12 @@ export type CommunityEvent = {
  */
 export const events: CommunityEvent[] = [
   {
-    id: 'claude-taxfix-hackathon',
-    title: 'Claude × Taxfix Hackathon',
-    kind: 'Hackathon',
-    role: 'Helped organize',
+    id: 'events-berlin',
+    title: 'Events in Berlin',
+    kind: 'Community',
+    role: 'Organiser of the Claude × Taxfix Hackathon',
     location: 'Berlin, Germany',
-    description: 'A hackathon in Berlin, the Claude × Taxfix Hackathon. I helped organize it.',
+    description: 'Moments from events in Berlin, including the Claude × Taxfix Hackathon, which I organised.',
     verified: true,
     photos: [
       { src: '/events/hackathon-01.jpg', alt: 'Attendees mingling in a large brick-and-steel hall while an icebreaker is shown on the screens' },
@@ -51,16 +51,6 @@ export const events: CommunityEvent[] = [
       { src: '/events/hackathon-06.jpg', alt: 'A buffet with salads and a hot dish being served' },
       { src: '/events/hackathon-07.jpg', alt: 'Participants seated around tables in the hall with the Claude Community slide on the screens' },
       { src: '/events/hackathon-08.jpg', alt: 'Group photo of participants in front of the Claude Community slide' },
-    ],
-  },
-  {
-    id: 'claude-community-berlin',
-    title: 'Claude Community Berlin',
-    kind: 'Community',
-    location: 'Berlin, Germany',
-    description: 'Photos from a Claude Community Berlin event.',
-    verified: true,
-    photos: [
       { src: '/events/community-01.jpg', alt: 'Two volunteers at the welcome desk next to the Claude Community Berlin welcome banner' },
       { src: '/events/community-02.jpg', alt: 'An audience seated and standing in a blue-lit hall, watching a presentation' },
     ],
