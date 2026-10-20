@@ -56,6 +56,20 @@ export function kFromY(y: number): number {
   return Math.min(lastKf, starts[index] + local * owned)
 }
 
+/** Scroll position (px) at which the camera sits exactly on keyframe `kf` (the inverse of kFromY). */
+export function scrollYForKeyframe(kf: number): number {
+  const sections = [...document.querySelectorAll<HTMLElement>('[data-journey-section]')]
+  if (sections.length === 0) return 0
+  const edges = sections.map((el) => el.getBoundingClientRect().top + window.scrollY)
+  edges.push(document.documentElement.scrollHeight)
+  const firsts = sections.map((el) => sectionStart[el.dataset.journeySection as SectionId])
+  let index = 0
+  while (index < firsts.length - 1 && kf >= firsts[index + 1]) index++
+  if (index === firsts.length - 1) return edges[index]
+  const owned = Math.max(firsts[index + 1] - firsts[index], 1)
+  return edges[index] + ((kf - firsts[index]) / owned) * (edges[index + 1] - edges[index])
+}
+
 export function startJourneyInput(): () => void {
   const measure = () => {
     const sections = [...document.querySelectorAll<HTMLElement>('[data-journey-section]')]

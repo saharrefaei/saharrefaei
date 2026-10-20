@@ -82,6 +82,13 @@ src/
     stations/          Intro (hero, about) · Work (experience, projects) · Showcase (events, contact)
     lightboxStore.ts   tiny external store for the fullscreen photo viewer
     WorldExperience.tsx  loader, scroll track, progress rail
+  detail/              PROJECT & EXPERIENCE DETAIL VIEWS (see below)
+    detailStore.ts     external store + URL/history sync (open, swap, close, Back/Forward, restore scroll + focus)
+    routes.ts          /projects/<id> and /experience/<id>: parse and build
+    model.ts           project or job → one view model (sections, facts, links, prev/next)
+    DetailOverlay.tsx  the full-screen dialog (lazy chunk)   blocks.tsx  header, sections, metrics, gallery, pager
+    DetailHost.tsx     scroll lock, inert background, focus/scroll restore, lazy-loads the overlay
+    DetailTrigger.tsx  the "View details" link used by every panel and card   FramePause.tsx  stops a <Canvas>
   scene/               OrbRig (shared signature object), Composition + SceneHost (flat mode only)
   sections/            flat-mode sections
   components/          Lightbox, DotText, Header, motion helpers, …
@@ -111,6 +118,36 @@ specific one; add more events (each becomes its own stop) if you want to separat
 
 Viewer: click a floating frame, a thumbnail or *View photos*. Arrow keys / swipe change photo, Escape closes, focus
 is trapped and restored.
+
+## Project & experience detail views
+
+Every project and job is clickable (the whole card, plus a visible **View details →** link) and opens a full-screen
+editorial overlay without leaving the page.
+
+* **URLs.** `/projects/<id>` and `/experience/<id>`, e.g. `/projects/federated-vit`, `/experience/btu`. They are real
+  deep links: Netlify's `/* → /index.html` rewrite serves them, and the "View details" control is an `<a href>` so it can be
+  copied or opened in a new tab. Opening pushes a history entry; Back/Forward open and close the view; closing goes back
+  (a deep-linked entry has nothing of ours to go back to, so it just resets the URL to `/`). The pager and cross-links swap
+  the item with `replaceState`, so a single Back always closes the view.
+* **Camera and scroll.** The page cannot scroll while the view is open (`overflow: hidden` on `<html>`), and the camera is
+  driven by scroll, so it simply stays put. Each pushed history entry stores the scroll position it was opened from, so
+  closing, Back, and even a reload put the camera back exactly. A direct link parks the background world at that item's
+  stop (`detailKeyframe` in `world/path.ts`, `scrollYForKeyframe` in `world/journey.ts`).
+* **Cost while open.** `FramePause` stops the render loop of the 3D world (and the flat page's scene), so the background
+  costs no GPU or CPU time; the last frame stays on screen. The overlay is its own lazy chunk (prefetched on hover, focus and
+  idle) and mounts nothing until used. Opening and closing re-render only `InertScope`, `DetailHost`, `FramePause` and the
+  overlay, never the 3D tree.
+* **Text.** The overlay is ordinary DOM text with no transform left on it at rest (the iris mask is removed once open,
+  `.detail[data-settled]`). Only the paused canvas element moves (a slight push-in), never any text.
+* **Accessibility.** A real `role="dialog"` with `aria-modal`, labelled by the title; the rest of the page is `inert`, so
+  nothing behind can take focus; Tab is trapped; Escape and a visible Close button close it; focus moves to the dialog and
+  returns to the control that opened it; `prefers-reduced-motion` swaps the iris and slides for a fade (and that visitor is
+  on the flat page anyway).
+* **Content.** All copy lives in `src/content/projects.ts` and `experience.ts` (`detail` on each entry; types in
+  `content/detail.ts`). Sections with no data are not rendered, so a thin entry stays honest. To add a project or job: add
+  the entry, nothing else (the journey, panels, flat page, URLs and pager all derive from the arrays). Add `gallery`
+  (images under `public/`), `impact.metrics` (only numbers that can be backed up) and `live` when they exist. The artwork in
+  the header is a generated illustration and is labelled as one; it is never presented as a screenshot.
 
 ## The 3D typeface
 
@@ -177,9 +214,18 @@ on-screen size on a 2x display, and Laplacian edge energy is compared.
 Company-internal systems and metrics from the previous site were intentionally left out of the experience entries.
 Add a verified demo URL to a project's `live` field and the "Live demo" button appears automatically.
 
+The four company projects (Advertiser Platform, HubSpot ↔ BigQuery Sync, User Suppression, Grid Operations Dashboard) are
+sanitised case studies: they describe what was built and how, and deliberately leave out internal system names, volumes and
+company metrics. Hard numbers are shown only where they come from the owner's own research (the federated-learning results).
+
 ## Known follow-ups
 
-* Confirm exact dates for Taxfix and Almedia and the M.Sc. period.
+* Confirm exact dates for Taxfix (start) and Almedia (end; currently "Jun 2025 – 2026") and the M.Sc. period. The Taxfix
+  detail view only contains what was already public on the site; add more when there is something to say.
+* The User Suppression project has no year: the previous site listed 2024, which predates the Almedia start date it gives.
+* The Federated Learning repository (`Reliable-and-Secure-Systems/Federated-learning`) is private, so its GitHub link was
+  removed from `projects.ts` (it would 404 for visitors). Add `github` back once the repository is public.
+* Link previews (og:title / og:image) are the same for every URL: the site is a static SPA with no per-route HTML.
 * `THREE.Clock` deprecation warning in the console comes from `@react-three/fiber` internals, not this code.
 * No automated test runner exists in the repository; verification used type-checking, ESLint, the production build,
   axe-core, and scripted real-Chrome runs (wheel/touch/nav/back/viewer/keyboard, camera position readout).

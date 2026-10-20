@@ -4,6 +4,7 @@ import { FadeUp } from '../components/motion'
 import { ProjectVisual } from '../components/ProjectVisual'
 import { SectionHead } from '../components/SectionHead'
 import { projects } from '../content/projects'
+import { DetailTrigger } from '../detail/DetailTrigger'
 import './Projects.css'
 
 /** Active project follows scroll position; hover and keyboard focus override it. */
@@ -47,15 +48,16 @@ export function Projects() {
             {projects.map((project, index) => (
               <li
                 key={project.id}
+                id={`project-${project.id}`}
                 className="project"
                 data-project-id={project.id}
                 data-active={project.id === active.id ? 'true' : undefined}
                 onPointerEnter={() => setActiveId(project.id)}
                 onFocus={() => setActiveId(project.id)}
               >
-                <FadeUp className="project__inner" as="article">
+                <FadeUp className="project__inner has-detail" as="article">
                   <div className="project__visual-inline" aria-hidden="true">
-                    <ProjectVisual kind={project.visual} />
+                    <ProjectVisual kind={project.visual} labels={project.visualLabels} />
                   </div>
                   <p className="project__kind eyebrow">
                     <span className="project__num">{String(index + 1).padStart(2, '0')}</span>
@@ -69,6 +71,7 @@ export function Projects() {
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
+                  <DetailTrigger to={{ kind: 'project', id: project.id }} label={project.title} />
                   {project.github || project.live ? (
                     <ul className="project__links">
                       {project.github ? (
@@ -107,7 +110,7 @@ export function Projects() {
               <div className="preview__stage">
                 {projects.map((project) => (
                   <div className="preview__art" key={project.id} data-active={project.id === active.id ? 'true' : undefined}>
-                    <ProjectVisual kind={project.visual} />
+                    <ProjectVisual kind={project.visual} labels={project.visualLabels} />
                   </div>
                 ))}
               </div>

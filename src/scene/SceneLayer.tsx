@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
+import { FramePause } from '../detail/FramePause'
 import { startSceneInput } from '../lib/sceneInput'
 import { useCoarsePointer, useNarrowViewport, usePrefersReducedMotion } from '../lib/capabilities'
 import { Composition } from './Composition'
@@ -48,6 +49,7 @@ export default function SceneLayer() {
           })
         }}
       >
+        <FramePause />
         <Composition lowPower={coarse || narrow} narrow={narrow} reducedMotion={reducedMotion} />
       </Canvas>
     </div>

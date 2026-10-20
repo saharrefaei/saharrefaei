@@ -1,6 +1,7 @@
 import { education } from '../../content/profile'
 import { experience, type Experience } from '../../content/experience'
 import { projects, type Project } from '../../content/projects'
+import { DetailTrigger } from '../../detail/DetailTrigger'
 import { Anchor } from '../layout'
 import { useAnchorMetrics, useLayout, useNearKf } from '../layoutCore'
 import { keyframes, sectionStart } from '../path'
@@ -60,7 +61,7 @@ function JobStop({ job, kf, index }: { job: Experience; kf: number; index: numbe
       </Anchor>
 
       <Anchor kf={kf} desktop={[side * 0.34, -0.2, 10.5]} narrow={[0, -0.12, 9]} range={1.3}>
-        <Panel px={narrow ? 330 : 430} frac={narrow ? 0.94 : 0.34} theme="ink">
+        <Panel px={narrow ? 330 : 430} frac={narrow ? 0.94 : 0.34} theme="ink" className="has-detail">
           <h2 className="sr-only">{job.company}</h2>
           <p className="wp__eyebrow wp__muted">
             {job.current ? <span className="wp__now">Now</span> : null}
@@ -78,6 +79,7 @@ function JobStop({ job, kf, index }: { job: Experience; kf: number; index: numbe
               <li key={item}>{item}</li>
             ))}
           </ul>
+          <DetailTrigger to={{ kind: 'experience', id: job.id }} label={`${job.role} at ${job.company}`} />
           {last && narrow ? (
             <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1.5px solid currentColor' }}>
               <EducationList />
@@ -159,7 +161,7 @@ function ProjectStop({ project, kf, index }: { project: Project; kf: number; ind
       </Anchor>
 
       <Anchor kf={kf} desktop={[side * 0.34, 0, 10]} narrow={[0, -0.34, 9]} range={1.3}>
-        <Panel px={narrow ? 330 : 430} frac={narrow ? 0.94 : 0.34} theme="heat">
+        <Panel px={narrow ? 330 : 430} frac={narrow ? 0.94 : 0.34} theme="heat" className="has-detail">
           <p className="wp__eyebrow">
             {String(index + 1).padStart(2, '0')} · {project.kind}
           </p>
@@ -172,6 +174,7 @@ function ProjectStop({ project, kf, index }: { project: Project; kf: number; ind
               <li key={item}>{item}</li>
             ))}
           </ul>
+          <DetailTrigger to={{ kind: 'project', id: project.id }} label={project.title} />
           {project.github || project.live ? (
             <ul className="wp__links">
               {project.github ? (

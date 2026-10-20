@@ -5,6 +5,7 @@ import { FadeUp } from '../components/motion'
 import { SectionHead } from '../components/SectionHead'
 import { education } from '../content/profile'
 import { experience } from '../content/experience'
+import { DetailTrigger } from '../detail/DetailTrigger'
 import './Experience.css'
 
 export function Experience() {
@@ -52,7 +53,7 @@ export function Experience() {
           </div>
           <ol className="timeline" ref={listRef}>
             {experience.map((job, index) => (
-              <li className="job" key={job.id}>
+              <li className="job" key={job.id} id={`experience-${job.id}`}>
                 <motion.span
                   className="job__node"
                   aria-hidden="true"
@@ -62,7 +63,7 @@ export function Experience() {
                   transition={{ type: 'spring', stiffness: 260, damping: 18 }}
                   data-current={job.current ? 'true' : undefined}
                 />
-                <FadeUp className="job__body" as="article">
+                <FadeUp className="job__body has-detail" as="article">
                   <div className="job__top">
                     <DotText
                       text={String(index + 1).padStart(2, '0')}
@@ -87,6 +88,7 @@ export function Experience() {
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
+                  <DetailTrigger to={{ kind: 'experience', id: job.id }} label={`${job.role} at ${job.company}`} />
                 </FadeUp>
               </li>
             ))}

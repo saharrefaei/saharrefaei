@@ -2,6 +2,7 @@ import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from '
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useFont } from '@react-three/drei'
 import { CanvasTexture } from 'three'
+import { FramePause } from '../detail/FramePause'
 import { StudioEnvironment } from '../scene/OrbRig'
 import { useCoarsePointer } from '../lib/capabilities'
 import { Gates, Shards, StarField } from './Backdrop'
@@ -174,6 +175,7 @@ export default function World({ onReady, onFail }: { onReady: () => void; onFail
         }}
       >
         <DprGovernor max={maxDpr} onChange={setDpr} />
+        <FramePause />
         <LayoutProvider lowPower={coarse}>
           <Suspense fallback={null}>
             <FontGate>

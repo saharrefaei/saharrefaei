@@ -2,7 +2,9 @@ import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useSta
 import { Lightbox } from '../components/Lightbox'
 import { Boundary } from './boundaries'
 import { profile } from '../content/profile'
-import { SECTION_ORDER, sectionOwned, type SectionId } from './path'
+import { detail } from '../detail/detailStore'
+import { scrollYForKeyframe } from './journey'
+import { detailKeyframe, SECTION_ORDER, sectionOwned, type SectionId } from './path'
 import './world.css'
 
 const World = lazy(() => import('./World'))
@@ -113,6 +115,13 @@ export function WorldExperience({ onFail }: { onFail: () => void }) {
   // The sections only exist once this lazily loaded chunk renders, after the browser has already
   // tried (and failed) to honour a #hash on load. Jump to it now so deep links like /#projects work.
   useLayoutEffect(() => {
+    // A direct link to a project or job opens its detail view over the world, with the camera parked at
+    // that item's stop. A reload keeps the exact scroll position the entry was opened from.
+    const deepLink = detail.takeInitial()
+    if (deepLink) {
+      window.scrollTo({ top: deepLink.y ?? scrollYForKeyframe(detailKeyframe(deepLink.ref)), behavior: 'instant' })
+      return
+    }
     const id = window.location.hash.slice(1)
     if (id) document.getElementById(id)?.scrollIntoView({ behavior: 'instant' })
   }, [])

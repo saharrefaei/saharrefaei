@@ -9,6 +9,8 @@
 }
 
 html {
+  /* keeps the layout from shifting when scrolling is locked behind a dialog */
+  scrollbar-gutter: stable;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   background: var(--ink);

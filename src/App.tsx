@@ -1,10 +1,12 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect, useState } from 'react'
 import { MotionConfig } from 'framer-motion'
 import { CursorFollower } from './components/CursorFollower'
 import { Header } from './components/Header'
 import { Lightbox } from './components/Lightbox'
 import { SiteFooter } from './components/SiteFooter'
 import { ViewToggle } from './components/ViewToggle'
+import { DetailHost, InertScope } from './detail/DetailHost'
+import { detail } from './detail/detailStore'
 import { isLowEndDevice, supportsWebGL, usePrefersReducedMotion } from './lib/capabilities'
 import { SceneHost } from './scene/SceneHost'
 import { Boundary } from './world/boundaries'
@@ -32,6 +34,17 @@ const writePreference = (flat: boolean) => {
   } catch {
     // private mode etc.: the choice simply lasts for this visit
   }
+}
+
+/** Flat page: a deep link to a project or job (or a reload on one) scrolls its card into view behind the detail view. */
+function FlatDeepLink() {
+  useLayoutEffect(() => {
+    const deepLink = detail.takeInitial()
+    if (!deepLink) return
+    if (deepLink.y !== null) window.scrollTo({ top: deepLink.y, behavior: 'instant' })
+    else document.getElementById(`${deepLink.ref.kind}-${deepLink.ref.id}`)?.scrollIntoView({ block: 'center', behavior: 'instant' })
+  }, [])
+  return null
 }
 
 /**
@@ -63,37 +76,41 @@ export default function App() {
   return (
     // reducedMotion="user" drops transform animations for visitors who ask for less motion
     <MotionConfig reducedMotion="user">
-      <a className="skip-link" href="#main">
-        Skip to content
-      </a>
-      <Header />
-      {canOfferWorld ? <ViewToggle mode={world ? 'world' : 'flat'} onToggle={toggle} /> : null}
+      <InertScope>
+        <a className="skip-link" href="#main">
+          Skip to content
+        </a>
+        <Header />
+        {canOfferWorld ? <ViewToggle mode={world ? 'world' : 'flat'} onToggle={toggle} /> : null}
 
-      {world ? (
-        <main id="main" tabIndex={-1} data-mode="world">
-          {/* if the chunk fails to load (e.g. a stale tab after a redeploy) drop to the simple page */}
-          <Boundary onError={() => setFailed(true)}>
-            <Suspense fallback={null}>
-              <WorldExperience onFail={() => setFailed(true)} />
-            </Suspense>
-          </Boundary>
-        </main>
-      ) : (
-        <>
-          <SceneHost />
-          <CursorFollower />
-          <main id="main" tabIndex={-1} data-mode="flat">
-            <Hero />
-            <About />
-            <Experience />
-            <Projects />
-            <Events />
-            <Contact />
+        {world ? (
+          <main id="main" tabIndex={-1} data-mode="world">
+            {/* if the chunk fails to load (e.g. a stale tab after a redeploy) drop to the simple page */}
+            <Boundary onError={() => setFailed(true)}>
+              <Suspense fallback={null}>
+                <WorldExperience onFail={() => setFailed(true)} />
+              </Suspense>
+            </Boundary>
           </main>
-          <SiteFooter />
-          <Lightbox />
-        </>
-      )}
+        ) : (
+          <>
+            <FlatDeepLink />
+            <SceneHost />
+            <CursorFollower />
+            <main id="main" tabIndex={-1} data-mode="flat">
+              <Hero />
+              <About />
+              <Experience />
+              <Projects />
+              <Events />
+              <Contact />
+            </main>
+            <SiteFooter />
+            <Lightbox />
+          </>
+        )}
+      </InertScope>
+      <DetailHost />
     </MotionConfig>
   )
 }

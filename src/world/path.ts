@@ -2,6 +2,7 @@ import { CatmullRomCurve3, Matrix4, Quaternion, Vector3 } from 'three'
 import { events } from '../content/events'
 import { experience } from '../content/experience'
 import { projects } from '../content/projects'
+import type { DetailRef } from '../detail/routes'
 
 /**
  * The geometry of the journey. Every stop the camera makes is a *keyframe*
@@ -83,6 +84,12 @@ SECTION_ORDER.forEach((id) => {
   sectionStart[id] = keyframes.findIndex((k) => k.section === id)
   sectionOwned[id] = keyframes.filter((k) => k.section === id).length
 })
+
+/** The camera stop that shows a project or job, so a deep link can put the background world there. */
+export const detailKeyframe = ({ kind, id }: DetailRef): number => {
+  const list = kind === 'project' ? projects : experience
+  return sectionStart[kind === 'project' ? 'projects' : 'experience'] + Math.max(0, list.findIndex((item) => item.id === id))
+}
 
 export const posCurve = new CatmullRomCurve3(
   keyframes.map((k) => k.pos),

@@ -7,7 +7,7 @@ import './ProjectVisual.css'
  * is about — not screenshots — so nothing here pretends to be a real UI.
  */
 
-type ArtProps = { uid: string }
+type ArtProps = { uid: string; labels?: readonly string[] }
 
 const POINTS = (count: number, radius: number, offset = 0) =>
   Array.from({ length: count }, (_, i) => {
@@ -52,11 +52,11 @@ function Orb({ uid }: ArtProps) {
   )
 }
 
-function Pipeline() {
+function Pipeline({ labels = ['train', 'tune', 'serve'] }: { labels?: readonly string[] }) {
   const nodes = [
-    { x: 40, label: 'train' },
-    { x: 150, label: 'tune' },
-    { x: 260, label: 'serve' },
+    { x: 40, label: labels[0] },
+    { x: 150, label: labels[1] },
+    { x: 260, label: labels[2] },
   ]
   return (
     <g>
@@ -119,7 +119,7 @@ const ARTWORK: Record<ProjectVisualKind, (props: ArtProps) => React.ReactElement
   layers: Layers,
 }
 
-export function ProjectVisual({ kind }: { kind: ProjectVisualKind }) {
+export function ProjectVisual({ kind, labels }: { kind: ProjectVisualKind; labels?: readonly string[] }) {
   const Art = ARTWORK[kind]
   // Unique per instance: url(#id) breaks if the first same-named SVG is display:none.
   const uid = `pv${useId().replace(/:/g, '')}`
@@ -141,7 +141,7 @@ export function ProjectVisual({ kind }: { kind: ProjectVisualKind }) {
       </defs>
       <rect width="400" height="400" className="pv-bg" />
       <rect width="400" height="400" fill={`url(#${uid}-dots)`} />
-      <Art uid={uid} />
+      <Art uid={uid} labels={labels} />
     </svg>
   )
 }
