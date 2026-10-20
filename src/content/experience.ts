@@ -37,7 +37,7 @@ export const experience: Experience[] = [
     shortName: 'TAXFIX',
     role: 'Software Engineer',
     location: 'Berlin, Germany',
-    period: 'Present',
+    period: 'Jun 2026 – Present',
     current: true,
     summary:
       'Building product features for a consumer tax app with React, React Native and TypeScript — shipping experiment-driven changes with feature flags, A/B testing and analytics. I also build with AI agents and work with Python and BigQuery.',

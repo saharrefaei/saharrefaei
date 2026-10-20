@@ -220,7 +220,7 @@ company metrics. Hard numbers are shown only where they come from the owner's ow
 
 ## Known follow-ups
 
-* Confirm exact dates for Taxfix (start) and Almedia (end; currently "Jun 2025 – 2026") and the M.Sc. period. The Taxfix
+* Confirm the Almedia end month (currently "Jun 2025 – 2026") and the M.Sc. period. Taxfix started 1 Jun 2026. The Taxfix
   detail view only contains what was already public on the site; add more when there is something to say.
 * The User Suppression project has no year: the previous site listed 2024, which predates the Almedia start date it gives.
 * The Federated Learning repository (`Reliable-and-Secure-Systems/Federated-learning`) is private, so its GitHub link was
